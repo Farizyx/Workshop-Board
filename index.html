@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WORKSHOP LABOUR PERFORMANCE BOARD</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="refresh-indicator" id="refreshIndicator">🔄 Switching View...</div>
+
+  <header>
+    WORKSHOP LABOUR PERFORMANCE BOARD
+    <div class="view-badge" id="viewBadge">Loading...</div>
+  </header>
+
+  <!-- TOP 3 PERFORMERS SECTIONS -->
+  <div class="top-performers-container">
+    <!-- TODAY'S TOP 3 -->
+    <div class="top-section">
+      <h3>🌟 Today's Top 3 Performers</h3>
+      <div class="top-3-container" id="todayTop3"></div>
+    </div>
+
+    <!-- TILL DATE TOP 3 -->
+    <div class="top-section">
+      <h3>👑 Till Date Top 3 Performers</h3>
+      <div class="top-3-container" id="tillDateTop3"></div>
+    </div>
+  </div>
+
+  <!-- SCROLLABLE TABLE WITH STATIC HEADER -->
+  <div class="scroll-container">
+    <!-- STATIC HEADER -->
+    <div class="table-header">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 8%;">Rank</th>
+            <th style="width: 10%;">Photo</th>
+            <th style="width: 22%;">Employee Name</th>
+            <th style="width: 12%;">Load Today</th>
+            <th style="width: 12%;">Load Till Date</th>
+            <th style="width: 12%;">Labour Today</th>
+            <th style="width: 12%;">Labour Till Date</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <!-- AUTO SCROLLING BODY -->
+    <div class="scroll-body">
+      <div class="scroll-content" id="scroll-content"></div>
+    </div>
+  </div>
+
+  <footer id="footer">Auto-updating and switching views</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
