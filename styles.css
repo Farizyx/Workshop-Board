@@ -15,61 +15,111 @@ body {
 header {
   background: #003a86;
   color: white;
-  padding: 20px;
-  font-size: 28px;
+  padding: 20px 30px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.header-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.company-logo {
+  height: 60px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+.header-center {
+  flex: 2;
+  text-align: center;
+  font-size: 32px;
   font-weight: 600;
   letter-spacing: 1px;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.last-update-time {
+  text-align: right;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.update-label {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 3px;
+  font-weight: 500;
+}
+
+.update-datetime {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .view-badge {
   display: inline-block;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 6px 16px;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 8px 20px;
   border-radius: 20px;
-  font-size: 0.6em;
+  font-size: 16px;
   font-weight: bold;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 /* TOP 3 PERFORMERS SECTION */
 .top-performers-container {
   display: flex;
   justify-content: space-around;
-  gap: 20px;
-  padding: 15px 20px;
+  gap: 25px;
+  padding: 20px 30px;
   flex-wrap: wrap;
 }
 
 .top-section {
   background: white;
   border-radius: 15px;
-  padding: 15px;
+  padding: 25px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   flex: 1;
-  min-width: 400px;
-  max-width: 600px;
+  min-width: 450px;
+  max-width: 650px;
 }
 
 .top-section h3 {
   text-align: center;
   color: #003a86;
-  margin-bottom: 12px;
-  font-size: 1.2em;
+  margin-bottom: 18px;
+  font-size: 1.6em;
+  font-weight: 700;
 }
 
 .top-3-container {
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
-  gap: 10px;
+  gap: 15px;
 }
 
 .top-person {
   text-align: center;
   flex: 1;
-  max-width: 150px;
+  max-width: 180px;
 }
 
 .top-person.rank-1 {
@@ -87,16 +137,16 @@ header {
 
 .rank-badge {
   display: inline-block;
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: #667eea;
   color: white;
   font-weight: bold;
-  line-height: 28px;
-  margin-bottom: 6px;
+  line-height: 38px;
+  margin-bottom: 10px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-  font-size: 0.9em;
+  font-size: 1.1em;
 }
 
 .rank-1 .rank-badge {
@@ -115,15 +165,15 @@ header {
 }
 
 .top-photo {
-  width: 85px;
-  height: 85px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid transparent;
+  border: 5px solid transparent;
   background: linear-gradient(45deg, #00e676, #00b0ff, #ff4081, #00e676);
   background-size: 300% 300%;
   animation: borderGlow 3s linear infinite;
-  padding: 3px;
+  padding: 4px;
   margin: 0 auto;
 }
 
@@ -134,14 +184,15 @@ header {
 }
 
 .top-person h4 {
-  margin: 8px 0 4px 0;
-  font-size: 0.88em;
+  margin: 12px 0 8px 0;
+  font-size: 1.15em;
   color: #333;
+  font-weight: 600;
 }
 
 .top-person p {
   margin: 0;
-  font-size: 1.1em;
+  font-size: 1.4em;
   font-weight: bold;
   color: #667eea;
 }
@@ -149,13 +200,13 @@ header {
 /* SCROLLABLE TABLE SECTION */
 .scroll-container {
   width: 95%;
-  max-width: 1600px;
-  margin: 10px auto;
+  max-width: 1800px;
+  margin: 15px auto;
   background: white;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   overflow: hidden;
-  height: calc(100vh - 400px);
+  height: calc(100vh - 420px);
   display: flex;
   flex-direction: column;
 }
@@ -175,11 +226,11 @@ header {
 .table-header th {
   background: #004aad;
   color: white;
-  padding: 14px 12px;
+  padding: 20px 15px;
   text-align: left;
-  font-weight: 600;
-  font-size: 1em;
-  border-bottom: 2px solid #003a86;
+  font-weight: 700;
+  font-size: 1.3em;
+  border-bottom: 3px solid #003a86;
 }
 
 /* SCROLLING BODY */
@@ -213,22 +264,22 @@ tbody tr:nth-child(1),
 tbody tr:nth-child(2),
 tbody tr:nth-child(3) {
   background: linear-gradient(90deg, #fff9e6 0%, #ffffff 100%);
-  border-left: 4px solid #ffd700;
+  border-left: 5px solid #ffd700;
 }
 
 tbody tr:nth-child(1) {
   background: linear-gradient(90deg, #fff4d6 0%, #ffffff 100%);
-  border-left: 5px solid #ffd700;
+  border-left: 6px solid #ffd700;
 }
 
 tbody tr:nth-child(2) {
   background: linear-gradient(90deg, #f5f5f5 0%, #ffffff 100%);
-  border-left: 4px solid #c0c0c0;
+  border-left: 5px solid #c0c0c0;
 }
 
 tbody tr:nth-child(3) {
   background: linear-gradient(90deg, #fff0e6 0%, #ffffff 100%);
-  border-left: 4px solid #cd7f32;
+  border-left: 5px solid #cd7f32;
 }
 
 tbody tr:nth-child(even) {
@@ -240,42 +291,50 @@ tbody tr:hover {
 }
 
 td {
-  padding: 12px;
+  padding: 18px 15px;
   border-bottom: 1px solid #ddd;
   text-align: left;
   position: relative;
+  font-size: 1.25em;
+  font-weight: 500;
 }
 
 /* Trophy icons for top 3 in table */
 tbody tr:nth-child(1) td:first-child::before {
   content: "🥇 ";
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 tbody tr:nth-child(2) td:first-child::before {
   content: "🥈 ";
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 tbody tr:nth-child(3) td:first-child::before {
   content: "🥉 ";
-  font-size: 1.2em;
+  font-size: 1.4em;
+}
+
+td strong {
+  font-weight: 700;
+  font-size: 1.05em;
 }
 
 td img {
-  width: 50px;
-  height: 50px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #667eea;
+  border: 3px solid #667eea;
 }
 
 footer {
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   text-align: center;
-  padding: 10px;
+  padding: 12px;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  font-weight: 500;
 }
 
 .refresh-indicator {
@@ -283,14 +342,14 @@ footer {
   top: 20px;
   right: 20px;
   background: rgba(255,255,255,0.95);
-  padding: 10px 20px;
+  padding: 12px 25px;
   border-radius: 25px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-  font-size: 0.9em;
+  font-size: 1em;
   color: #667eea;
   display: none;
   z-index: 1000;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .refresh-indicator.show {
@@ -310,5 +369,16 @@ footer {
 
   .top-section {
     min-width: 100%;
+  }
+  
+  header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .header-left, .header-center, .header-right {
+    flex: none;
+    width: 100%;
+    text-align: center;
   }
 }
