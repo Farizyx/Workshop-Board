@@ -30,11 +30,19 @@ header {
 }
 
 .company-logo {
-  height: 60px;
-  width: auto;
-  max-width: 200px;
-  object-fit: contain;
+  height: 100px;
+  width: 100px;
+  padding: 10px;              /* adds space around logo inside circle */
+  border-radius: 50%;         /* circle shape */
+  border: 3px solid #333;     /* border color */
+  background-color: #fff;     /* optional background */
+  object-fit: contain;        /* keeps logo fully visible */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+
 
 .header-center {
   flex: 2;
@@ -92,7 +100,7 @@ header {
 }
 
 .top-section {
-  background: white;
+  background: rgb(255, 234, 234);
   border-radius: 15px;
   padding: 25px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
@@ -103,7 +111,7 @@ header {
 
 .top-section h3 {
   text-align: center;
-  color: #003a86;
+  color: #061f3f;
   margin-bottom: 18px;
   font-size: 1.6em;
   font-weight: 700;
