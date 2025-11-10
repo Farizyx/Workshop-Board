@@ -2,15 +2,15 @@ const SHEET_ID = "148f8oGqJL5u3ujLdwRzm05x7TKpPoqQikyltXa1zTCw";
 const SHEETS = [
   { 
     name: 'MALAPPURAM ADVISOR', 
-    label: 'Advisor',
+    label: 'ADVISOR',
     todaySheet: 'MALAPPURAM ADVISOR TODAY',
     tillDateSheet: 'MALAPPURAM ADVISOR TILL DATE'
   },
   { 
-    name: 'MALAPPURAM TECH', 
-    label: 'Tech',
-    todaySheet: 'MALAPPURAM TECH TODAY',
-    tillDateSheet: 'MALAPPURAM TECH TILL DATE'
+    name: 'MALAPPURAM MECHANIC', 
+    label: 'MECHANIC',
+    todaySheet: 'MALAPPURAM MECHANIC TODAY',
+    tillDateSheet: 'MALAPPURAM MECHANIC TILL DATE'
   }
 ];
 const FALLBACK_IMAGE = 'https://via.placeholder.com/100';
@@ -19,7 +19,7 @@ let currentSheetIndex = 0;
 
 // ===== LOGO URL CONFIGURATION =====
 // Replace this URL with your company logo URL
-const COMPANY_LOGO_URL = "YOUR_LOGO_URL_HERE";
+const COMPANY_LOGO_URL = "https://i.postimg.cc/mZFhnQ4H/a3898668-6ff6-40af-b0cc-7991ebfe37b2.jpg";
 // Example: "https://example.com/logo.png"
 // ===================================
 
