@@ -7,10 +7,10 @@ const SHEETS = [
     tillDateSheet: 'MALAPPURAM ADVISOR TILL DATE'
   },
   { 
-    name: 'MALAPPURAM MECHANIC', 
+    name: 'MALAPPURAM TECH', 
     label: 'MECHANIC',
-    todaySheet: 'MALAPPURAM MECHANIC TODAY',
-    tillDateSheet: 'MALAPPURAM MECHANIC TILL DATE'
+    todaySheet: 'MALAPPURAM TECH TODAY',
+    tillDateSheet: 'MALAPPURAM TECH TILL DATE'
   }
 ];
 const FALLBACK_IMAGE = 'https://via.placeholder.com/100';
@@ -256,3 +256,4 @@ document.addEventListener('visibilitychange', () => {
     fetchData();
   }
 });
+
