@@ -17,6 +17,54 @@ const FALLBACK_IMAGE = 'https://via.placeholder.com/100';
 const SCROLL_DURATION = 30;
 let currentSheetIndex = 0;
 
+// ===== LOGO URL CONFIGURATION =====
+// Replace this URL with your company logo URL
+const COMPANY_LOGO_URL = "YOUR_LOGO_URL_HERE";
+// Example: "https://example.com/logo.png"
+// ===================================
+
+// Get current date in dd/mm/yyyy format
+function getCurrentDate() {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const year = today.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+// Get date range from 1st of current month till today
+function getDateRange() {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const year = today.getFullYear();
+  return `01/${month}/${year} - ${day}/${month}/${year}`;
+}
+
+// Get formatted date and time for last update display
+function getFormattedDateTime() {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+}
+
+// Set company logo
+function setCompanyLogo() {
+  const logoElement = document.getElementById('companyLogo');
+  if (COMPANY_LOGO_URL && COMPANY_LOGO_URL !== "YOUR_LOGO_URL_HERE") {
+    logoElement.src = COMPANY_LOGO_URL;
+  } else {
+    // Hide logo if no URL is provided
+    logoElement.style.display = 'none';
+  }
+}
+
 function parseGoogleSheetData(response, dataType) {
   const jsonString = response.substring(47).slice(0, -2);
   const data = JSON.parse(jsonString);
@@ -83,8 +131,20 @@ function createTopPerformer(employee, rank) {
   `;
 }
 
+function updateLastUpdateTime() {
+  const dateTimeString = getFormattedDateTime();
+  document.getElementById('updateDateTime').textContent = dateTimeString;
+}
+
 function displayData(employees) {
   if (!employees.length) return;
+
+  const todayDate = getCurrentDate();
+  const dateRange = getDateRange();
+
+  // Update section titles with dates
+  document.querySelector('.top-section:nth-child(1) h3').innerHTML = `🌟 ${todayDate} Top 3 Performers`;
+  document.querySelector('.top-section:nth-child(2) h3').innerHTML = `👑 ${dateRange} Top 3 Performers`;
 
   // Today's Top 3
   const todayTop3 = [...employees]
@@ -164,16 +224,11 @@ async function fetchData() {
     }
 
     displayData(employees);
+    updateLastUpdateTime();
     
     document.getElementById('viewBadge').textContent = currentSheet.label;
-    
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit'
-    });
     document.getElementById('footer').textContent = 
-      `Last updated: ${timeString} | Viewing: ${currentSheet.label} | Auto-switching views`;
+      `Viewing: ${currentSheet.label} | Auto-switching views`;
 
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -188,7 +243,8 @@ function switchSheet() {
   fetchData();
 }
 
-// Initial load
+// Initial setup
+setCompanyLogo();
 fetchData();
 
 // Switch sheets every 40 seconds
