@@ -2,11 +2,11 @@ const SHEET_ID = "148f8oGqJL5u3ujLdwRzm05x7TKpPoqQikyltXa1zTCw";
 const SHEETS = [
   { 
     name: 'MALAPPURAM ADVISOR', 
-    label: 'Advisor'
+    label: 'ADVISOR'
   },
   { 
     name: 'MALAPPURAM TECH', 
-    label: 'Tech'
+    label: 'MECHANIC'
   }
 ];
 const FALLBACK_IMAGE = 'https://via.placeholder.com/100';
