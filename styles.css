@@ -32,17 +32,15 @@ header {
 .company-logo {
   height: 100px;
   width: 100px;
-  padding: 10px;              /* adds space around logo inside circle */
-  border-radius: 50%;         /* circle shape */
-  border: 3px solid #333;     /* border color */
-  background-color: #fff;     /* optional background */
-  object-fit: contain;        /* keeps logo fully visible */
+  padding: 10px;
+  border-radius: 50%;
+  border: 3px solid #333;
+  background-color: #fff;
+  object-fit: contain;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
-
 
 .header-center {
   flex: 2;
@@ -128,6 +126,9 @@ header {
   text-align: center;
   flex: 1;
   max-width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .top-person.rank-1 {
@@ -155,6 +156,7 @@ header {
   margin-bottom: 10px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.3);
   font-size: 1.1em;
+  flex-shrink: 0;
 }
 
 .rank-1 .rank-badge {
@@ -183,6 +185,7 @@ header {
   animation: borderGlow 3s linear infinite;
   padding: 4px;
   margin: 0 auto;
+  flex-shrink: 0;
 }
 
 @keyframes borderGlow {
@@ -191,11 +194,26 @@ header {
   100% { background-position: 0% 50%; }
 }
 
+.top-person-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px;
+  width: 100%;
+  margin-top: 8px;
+}
+
 .top-person h4 {
-  margin: 12px 0 8px 0;
+  margin: 0 0 8px 0;
   font-size: 1.15em;
   color: #333;
   font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .top-person p {
@@ -203,6 +221,7 @@ header {
   font-size: 1.4em;
   font-weight: bold;
   color: #667eea;
+  white-space: nowrap;
 }
 
 /* SCROLLABLE TABLE SECTION */
@@ -251,7 +270,7 @@ header {
 .scroll-content {
   position: absolute;
   width: 100%;
-  animation: scrollUp 30s linear infinite;
+  animation: scrollUp 60s linear;
 }
 
 @keyframes scrollUp {
