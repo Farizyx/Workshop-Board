@@ -2,20 +2,17 @@ const SHEET_ID = "148f8oGqJL5u3ujLdwRzm05x7TKpPoqQikyltXa1zTCw";
 const SHEETS = [
   { 
     name: 'MALAPPURAM ADVISOR', 
-    label: 'ADVISOR',
-    todaySheet: 'MALAPPURAM ADVISOR TODAY',
-    tillDateSheet: 'MALAPPURAM ADVISOR TILL DATE'
+    label: 'Advisor'
   },
   { 
     name: 'MALAPPURAM TECH', 
-    label: 'MECHANIC',
-    todaySheet: 'MALAPPURAM TECH TODAY',
-    tillDateSheet: 'MALAPPURAM TECH TILL DATE'
+    label: 'Tech'
   }
 ];
 const FALLBACK_IMAGE = 'https://via.placeholder.com/100';
-const SCROLL_DURATION = 30;
+const SCROLL_DURATION = 60; // Slower scrolling - 60 seconds
 let currentSheetIndex = 0;
+let scrollTimeout = null;
 
 // ===== LOGO URL CONFIGURATION =====
 // Replace this URL with your company logo URL
@@ -65,7 +62,7 @@ function setCompanyLogo() {
   }
 }
 
-function parseGoogleSheetData(response, dataType) {
+function parseGoogleSheetData(response) {
   const jsonString = response.substring(47).slice(0, -2);
   const data = JSON.parse(jsonString);
   
@@ -75,49 +72,20 @@ function parseGoogleSheetData(response, dataType) {
   rows.forEach(row => {
     const cells = row.c;
     if (cells && cells[0] && cells[0].v) {
-      if (dataType === 'today') {
-        // TODAY sheet: NAME, EMP CODE, THIS MONTH LOAD, THIS MONTH LABOUR AMOUNT, TODAY LOAD, TODAY LABOUR, PHOTO
-        employees.push({
-          name: cells[0]?.v || 'Unknown',
-          empCode: cells[1]?.v || '',
-          monthLoad: parseFloat(cells[2]?.v) || 0,
-          monthLabour: parseFloat(cells[3]?.v) || 0,
-          loadToday: parseFloat(cells[4]?.v) || 0,
-          labourToday: parseFloat(cells[5]?.v) || 0,
-          photoURL: cells[6]?.v || FALLBACK_IMAGE
-        });
-      } else {
-        // TILL DATE sheet: NAME, EMP CODE, LOAD TILL DATE, LABOUR TILL DATE, PHOTO
-        employees.push({
-          name: cells[0]?.v || 'Unknown',
-          empCode: cells[1]?.v || '',
-          loadTillDate: parseFloat(cells[2]?.v) || 0,
-          labourTillDate: parseFloat(cells[3]?.v) || 0,
-          photoURL: cells[4]?.v || FALLBACK_IMAGE
-        });
-      }
+      // Sheet format: NAME, EMP CODE, THIS MONTH LOAD, THIS MONTH LABOUR AMOUNT, TODAY LOAD, TODAY LABOUR, PHOTO
+      employees.push({
+        name: cells[0]?.v || 'Unknown',
+        empCode: cells[1]?.v || '',
+        loadTillDate: parseFloat(cells[2]?.v) || 0,
+        labourTillDate: parseFloat(cells[3]?.v) || 0,
+        loadToday: parseFloat(cells[4]?.v) || 0,
+        labourToday: parseFloat(cells[5]?.v) || 0,
+        photoURL: cells[6]?.v || FALLBACK_IMAGE
+      });
     }
   });
 
   return employees;
-}
-
-function mergeEmployeeData(todayData, tillDateData) {
-  // Merge data by employee code
-  const merged = todayData.map(todayEmp => {
-    const tillDateEmp = tillDateData.find(e => e.empCode === todayEmp.empCode) || {};
-    return {
-      name: todayEmp.name,
-      empCode: todayEmp.empCode,
-      loadToday: todayEmp.loadToday || 0,
-      labourToday: todayEmp.labourToday || 0,
-      loadTillDate: tillDateEmp.loadTillDate || 0,
-      labourTillDate: tillDateEmp.labourTillDate || 0,
-      photoURL: todayEmp.photoURL || tillDateEmp.photoURL || FALLBACK_IMAGE
-    };
-  });
-
-  return merged;
 }
 
 function createTopPerformer(employee, rank) {
@@ -139,14 +107,11 @@ function updateLastUpdateTime() {
 function displayData(employees) {
   if (!employees.length) return;
 
-  const todayDate = getCurrentDate();
-  const dateRange = getDateRange();
+  // Update section titles WITHOUT dates
+  document.querySelector('.top-section:nth-child(1) h3').innerHTML = `🌟 Today's Top 3 Performers`;
+  document.querySelector('.top-section:nth-child(2) h3').innerHTML = `👑 This Month Top 3 Performers`;
 
-  // Update section titles with dates
-  document.querySelector('.top-section:nth-child(1) h3').innerHTML = `🌟 ${todayDate} Top 3 Performers`;
-  document.querySelector('.top-section:nth-child(2) h3').innerHTML = `👑 ${dateRange} Top 3 Performers`;
-
-  // Today's Top 3
+  // Today's Top 3 (based on TODAY LABOUR)
   const todayTop3 = [...employees]
     .map(e => ({ ...e, labour: e.labourToday }))
     .sort((a, b) => b.labour - a.labour)
@@ -156,7 +121,7 @@ function displayData(employees) {
     .map((emp, i) => createTopPerformer(emp, i + 1))
     .join('');
 
-  // Till Date Top 3
+  // This Month Top 3 (based on THIS MONTH LABOUR AMOUNT)
   const tillDateTop3 = [...employees]
     .map(e => ({ ...e, labour: e.labourTillDate }))
     .sort((a, b) => b.labour - a.labour)
@@ -189,7 +154,21 @@ function displayData(employees) {
 
   const scrollContent = document.getElementById('scroll-content');
   scrollContent.innerHTML = tableHTML + tableHTML;
-  scrollContent.style.animation = `scrollUp ${SCROLL_DURATION}s linear infinite`;
+  
+  // Remove old animation and force reflow
+  scrollContent.style.animation = 'none';
+  void scrollContent.offsetHeight; // Force reflow
+  scrollContent.style.animation = `scrollUp ${SCROLL_DURATION}s linear`;
+  
+  // Clear any existing timeout
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout);
+  }
+  
+  // Auto-switch after scroll completes
+  scrollTimeout = setTimeout(() => {
+    switchSheet();
+  }, SCROLL_DURATION * 1000);
 }
 
 function showRefreshIndicator() {
@@ -204,20 +183,11 @@ async function fetchData() {
   try {
     const currentSheet = SHEETS[currentSheetIndex];
     
-    // Fetch TODAY data
-    const todayUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${currentSheet.todaySheet}`;
-    const todayResponse = await fetch(todayUrl);
-    const todayText = await todayResponse.text();
-    const todayEmployees = parseGoogleSheetData(todayText, 'today');
-    
-    // Fetch TILL DATE data
-    const tillDateUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${currentSheet.tillDateSheet}`;
-    const tillDateResponse = await fetch(tillDateUrl);
-    const tillDateText = await tillDateResponse.text();
-    const tillDateEmployees = parseGoogleSheetData(tillDateText, 'tillDate');
-    
-    // Merge the data
-    const employees = mergeEmployeeData(todayEmployees, tillDateEmployees);
+    // Fetch data from single sheet
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${currentSheet.name}`;
+    const response = await fetch(sheetUrl);
+    const text = await response.text();
+    const employees = parseGoogleSheetData(text);
     
     if (employees.length === 0) {
       throw new Error('No data found');
@@ -247,13 +217,9 @@ function switchSheet() {
 setCompanyLogo();
 fetchData();
 
-// Switch sheets every 40 seconds
-setInterval(switchSheet, 40000);
-
 // Refresh when tab becomes visible
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     fetchData();
   }
 });
-
