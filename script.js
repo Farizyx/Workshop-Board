@@ -13,6 +13,7 @@ const FALLBACK_IMAGE = 'https://via.placeholder.com/100';
 const SCROLL_DURATION = 60; // Slower scrolling - 60 seconds
 let currentSheetIndex = 0;
 let scrollTimeout = null;
+let previousData = null; // Store previous data to detect changes
 
 // ===== LOGO URL CONFIGURATION =====
 // Replace this URL with your company logo URL
@@ -93,8 +94,10 @@ function createTopPerformer(employee, rank) {
     <div class="top-person rank-${rank}">
       <div class="rank-badge">${rank}</div>
       <img src="${employee.photoURL}" class="top-photo" alt="${employee.name}" onerror="this.src='${FALLBACK_IMAGE}'">
-      <h4>${employee.name}</h4>
-      <p>₹${employee.labour.toLocaleString()}</p>
+      <div class="top-person-info">
+        <h4>${employee.name}</h4>
+        <p>₹${employee.labour.toLocaleString()}</p>
+      </div>
     </div>
   `;
 }
@@ -102,6 +105,17 @@ function createTopPerformer(employee, rank) {
 function updateLastUpdateTime() {
   const dateTimeString = getFormattedDateTime();
   document.getElementById('updateDateTime').textContent = dateTimeString;
+}
+
+// Check if data has changed (specifically labour amounts)
+function hasDataChanged(newData) {
+  if (!previousData) return true;
+  
+  // Compare labour amounts to detect changes
+  const newLabourSum = newData.reduce((sum, emp) => sum + emp.labourToday + emp.labourTillDate, 0);
+  const oldLabourSum = previousData.reduce((sum, emp) => sum + emp.labourToday + emp.labourTillDate, 0);
+  
+  return newLabourSum !== oldLabourSum;
 }
 
 function displayData(employees) {
@@ -193,8 +207,13 @@ async function fetchData() {
       throw new Error('No data found');
     }
 
+    // Only update timestamp if data actually changed
+    if (hasDataChanged(employees)) {
+      updateLastUpdateTime();
+      previousData = JSON.parse(JSON.stringify(employees)); // Deep copy
+    }
+
     displayData(employees);
-    updateLastUpdateTime();
     
     document.getElementById('viewBadge').textContent = currentSheet.label;
     document.getElementById('footer').textContent = 
