@@ -34,8 +34,8 @@ header {
   width: 100px;
   padding: 10px;
   border-radius: 50%;
-  border: 3px solid #333;
-  background-color: #fff;
+  border: 3px solid #e80000;
+  background-color: #fffefe;
   object-fit: contain;
   display: flex;
   justify-content: center;
@@ -98,7 +98,7 @@ header {
 }
 
 .top-section {
-  background: rgb(255, 234, 234);
+  background: rgb(255, 255, 255);
   border-radius: 15px;
   padding: 25px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
@@ -161,16 +161,16 @@ header {
 
 .rank-1 .rank-badge {
   background: #ffd700;
-  color: #333;
+  color: #cf2323;
 }
 
 .rank-2 .rank-badge {
-  background: #c0c0c0;
+  background: #ffc2c2;
   color: #333;
 }
 
 .rank-3 .rank-badge {
-  background: #cd7f32;
+  background: #fb8f23;
   color: white;
 }
 
@@ -183,7 +183,7 @@ header {
   background: linear-gradient(45deg, #00e676, #00b0ff, #ff4081, #00e676);
   background-size: 300% 300%;
   animation: borderGlow 3s linear infinite;
-  padding: 4px;
+  padding: 2px;
   margin: 0 auto;
   flex-shrink: 0;
 }
@@ -251,7 +251,7 @@ header {
 }
 
 .table-header th {
-  background: #004aad;
+  background: #ad002b;
   color: white;
   padding: 20px 15px;
   text-align: left;
@@ -326,7 +326,6 @@ td {
   font-weight: 500;
 }
 
-/* Trophy icons for top 3 in table */
 tbody tr:nth-child(1) td:first-child::before {
   content: "🥇 ";
   font-size: 1.4em;
@@ -352,11 +351,11 @@ td img {
   height: 65px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #667eea;
+  border: 3px solid #ff0000;
 }
 
 footer {
-  color: white;
+  color: rgb(255, 255, 255);
   font-size: 16px;
   text-align: center;
   padding: 12px;
