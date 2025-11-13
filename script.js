@@ -13,15 +13,10 @@ const FALLBACK_IMAGE = 'https://via.placeholder.com/100';
 const SCROLL_DURATION = 60; // Slower scrolling - 60 seconds
 let currentSheetIndex = 0;
 let scrollTimeout = null;
-let previousData = null; // Store previous data to detect changes
+let previousData = null; 
 
-// ===== LOGO URL CONFIGURATION =====
-// Replace this URL with your company logo URL
 const COMPANY_LOGO_URL = "https://i.postimg.cc/mZFhnQ4H/a3898668-6ff6-40af-b0cc-7991ebfe37b2.jpg";
-// Example: "https://example.com/logo.png"
-// ===================================
 
-// Get current date in dd/mm/yyyy format
 function getCurrentDate() {
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
