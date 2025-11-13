@@ -44,12 +44,12 @@ function parseGoogleSheetData(response) {
     if (cells && cells[0] && cells[0].v) {
       employees.push({
         name: cells[0]?.v || 'Unknown',
-        empCode: cells[1]?.v || '',
-        loadTillDate: parseFloat(cells[2]?.v) || 0,
-        labourTillDate: parseFloat(cells[3]?.v) || 0,
-        loadToday: parseFloat(cells[4]?.v) || 0,
-        labourToday: parseFloat(cells[5]?.v) || 0,
-        photoURL: cells[6]?.v || FALLBACK_IMAGE
+        empCode: cells[6]?.v || '',
+        loadTillDate: parseFloat(cells[1]?.v) || 0,
+        labourTillDate: parseFloat(cells[2]?.v) || 0,
+        loadToday: parseFloat(cells[3]?.v) || 0,
+        labourToday: parseFloat(cells[4]?.v) || 0,
+        photoURL: cells[5]?.v || FALLBACK_IMAGE
       });
     }
   });
