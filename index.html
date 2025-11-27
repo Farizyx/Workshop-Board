@@ -3,69 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MALAPPURAM WORKSHOP PERFORMANCE BOARD</title>
+  <title>Performance Excellence Dashboard</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="refresh-indicator" id="refreshIndicator">🔄 Switching View...</div>
+  <div class="bg-pattern"></div>
+  
+  <div class="refresh-indicator" id="refreshIndicator">
+    🔄 SWITCHING VIEW
+  </div>
 
-  <header>
-    <div class="header-left">
-      <img src="YOUR_LOGO_URL_HERE" alt="Company Logo" class="company-logo" id="companyLogo">
-    </div>
-    <div class="header-center">
-      MALAPPURAM WORKSHOP PERFORMANCE BOARD
-      <div class="view-badge" id="viewBadge">Loading...</div>
-    </div>
-    <div class="header-right">
-      <div class="last-update-time" id="lastUpdateTime">
-        <div class="update-label">Last Updated</div>
-        <div class="update-datetime" id="updateDateTime">Loading...</div>
+  <div class="container">
+    <header class="header">
+      <div class="header-content">
+        <div class="logo-section">
+          <div class="logo-container">
+            <div class="logo-inner">
+              <img src="https://i.postimg.cc/mZFhnQ4H/a3898668-6ff6-40af-b0cc-7991ebfe37b2.jpg" alt="Logo" id="companyLogo">
+            </div>
+          </div>
+        </div>
+
+        <div class="title-section">
+          <h1 class="main-title">PERFORMANCE EXCELLENCE</h1>
+          <div class="view-badge" id="viewBadge">LOADING...</div>
+        </div>
+
+        <div class="update-section">
+          <div class="update-label">Last Updated</div>
+          <div class="update-time" id="updateTime">--:--</div>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- TOP 3 PERFORMERS SECTIONS -->
-  <div class="top-performers-container">
-    <!-- TODAY'S TOP 3 -->
-    <div class="top-section">
-      <h3>🌟 Today's Top 3 Performers</h3>
-      <div class="top-3-container" id="todayTop3"></div>
+    <div class="main-content">
+      <section class="leaderboard-section">
+        <div class="table-header-sticky">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 8%;">RANK</th>
+                <th style="width: 10%;">PHOTO</th>
+                <th style="width: 30%;">EMPLOYEE NAME</th>
+                <th style="width: 13%;">LOAD</th>
+                <th style="width: 13%;">LABOUR ₹</th>
+                <th style="width: 13%;">VAS ₹</th>
+                <th style="width: 13%;">MGA ₹</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="table-container">
+          <div class="table-scroll" id="tableScroll">
+            <table>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="champions-section">
+        <div class="podium-container">
+          <h2 class="podium-title" id="podiumTitle">🏆 TOP 3 PERFORMERS</h2>
+          <div class="podium" id="podium"></div>
+        </div>
+      </section>
     </div>
 
-    <!-- TILL DATE TOP 3 -->
-    <div class="top-section">
-      <h3>👑 Till Date Top 3 Performers</h3>
-      <div class="top-3-container" id="tillDateTop3"></div>
-    </div>
+    <footer class="footer" id="footer">
+      REAL-TIME PERFORMANCE TRACKING • ALL BRANCHES
+    </footer>
   </div>
-
-  <!-- SCROLLABLE TABLE WITH STATIC HEADER -->
-  <div class="scroll-container">
-    <!-- STATIC HEADER -->
-    <div class="table-header">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 8%;">Rank</th>
-            <th style="width: 10%;">Photo</th>
-            <th style="width: 22%;">Employee Name</th>
-            <th style="width: 12%;">Load Today</th>
-            <th style="width: 12%;">Load Till Date</th>
-            <th style="width: 12%;">Labour Today</th>
-            <th style="width: 12%;">Labour Till Date</th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-
-    <!-- AUTO SCROLLING BODY -->
-    <div class="scroll-body">
-      <div class="scroll-content" id="scroll-content"></div>
-    </div>
-  </div>
-
-  <footer id="footer">Auto-updating</footer>
 
   <script src="script.js"></script>
 </body>
