@@ -17,7 +17,8 @@ let state = {
   scrollInterval: null,
   switchTimer: null,
   userInteracting: false,
-  lastScrollPos: 0
+  scrollPaused: false,
+  isScrolling: false
 };
 
 function formatNum(n) {
@@ -137,40 +138,49 @@ function buildChampionCard(emp, rank, isMech) {
   `;
 }
 
+function stopScrolling() {
+  if (state.scrollInterval) {
+    clearInterval(state.scrollInterval);
+    state.scrollInterval = null;
+  }
+  state.isScrolling = false;
+  state.scrollPaused = false;
+}
+
 function startScrolling() {
-  if (state.scrollInterval) clearInterval(state.scrollInterval);
+  stopScrolling();
   
   const container = document.getElementById('tableBodyContainer');
   const maxScroll = container.scrollHeight - container.clientHeight;
   
-  // If content fits without scrolling, switch immediately after delay
-  if (maxScroll <= 0) {
+  if (maxScroll <= 10) {
     setTimeout(() => {
-      switchView();
-    }, 5000);
+      if (!state.userInteracting) {
+        switchView();
+      }
+    }, CONFIG.SWITCH_DELAY);
     return;
   }
   
-  // Start from current scroll position
-  let scrollPos = container.scrollTop;
-  const scrollSpeed = 1.5;
-  const pauseAtBottom = 3000;
-  let pausing = false;
+  container.scrollTop = 0;
+  let scrollPos = 0;
+  const scrollSpeed = 2;
+  const pauseAtBottom = 4000;
+  state.isScrolling = true;
   
   state.scrollInterval = setInterval(() => {
-    if (state.userInteracting) {
-      // Update scroll position to current position when user is interacting
-      scrollPos = container.scrollTop;
+    if (state.userInteracting || state.scrollPaused) {
       return;
     }
     
-    if (pausing) return;
-    
-    if (scrollPos >= maxScroll) {
-      pausing = true;
-      clearInterval(state.scrollInterval);
+    if (scrollPos >= maxScroll - 5) {
+      state.scrollPaused = true;
+      stopScrolling();
+      
       setTimeout(() => {
-        switchView();
+        if (!state.userInteracting) {
+          switchView();
+        }
       }, pauseAtBottom);
     } else {
       scrollPos += scrollSpeed;
@@ -246,7 +256,7 @@ function renderData(data) {
   
   setTimeout(() => {
     startScrolling();
-  }, 100);
+  }, 500);
 }
 
 function showSwitchNotif() {
@@ -274,16 +284,15 @@ async function loadData() {
 }
 
 function switchView() {
-  if (state.userInteracting) return;
+  if (state.userInteracting) {
+    setTimeout(switchView, 5000);
+    return;
+  }
   
   showSwitchNotif();
+  stopScrolling();
   
   state.currentIndex = (state.currentIndex + 1) % CONFIG.SHEETS.length;
-  
-  if (state.scrollInterval) {
-    clearInterval(state.scrollInterval);
-    state.scrollInterval = null;
-  }
   
   setTimeout(() => {
     loadData();
@@ -298,20 +307,51 @@ container.addEventListener('mouseenter', () => {
 
 container.addEventListener('mouseleave', () => {
   state.userInteracting = false;
+  if (!state.isScrolling) {
+    startScrolling();
+  }
 });
 
-container.addEventListener('wheel', () => {
+container.addEventListener('touchstart', () => {
   state.userInteracting = true;
+  stopScrolling();
+});
+
+container.addEventListener('touchend', () => {
+  setTimeout(() => {
+    state.userInteracting = false;
+    if (!state.isScrolling) {
+      startScrolling();
+    }
+  }, 2000);
+});
+
+container.addEventListener('wheel', (e) => {
+  state.userInteracting = true;
+  stopScrolling();
+  
   clearTimeout(state.wheelTimeout);
   state.wheelTimeout = setTimeout(() => {
     state.userInteracting = false;
-  }, 2000);
+    if (!state.isScrolling) {
+      startScrolling();
+    }
+  }, 3000);
+});
+
+container.addEventListener('scroll', () => {
+  if (!state.isScrolling && !state.userInteracting) {
+    clearTimeout(state.manualScrollTimeout);
+    state.manualScrollTimeout = setTimeout(() => {
+      startScrolling();
+    }, 2000);
+  }
 });
 
 loadData();
 
 setInterval(() => {
-  if (!state.userInteracting) {
+  if (!state.userInteracting && !state.isScrolling) {
     loadData();
   }
 }, 30000);
