@@ -1,78 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Performance Excellence Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="bg-pattern"></div>
-  
-  <div class="refresh-indicator" id="refreshIndicator">
+  <div class="animated-bg"></div>
+
+  <div class="switch-notification" id="switchNotification">
     🔄 SWITCHING VIEW
   </div>
 
-  <div class="container">
-    <header class="header">
-      <div class="header-content">
-        <div class="logo-section">
-          <div class="logo-container">
-            <div class="logo-inner">
-              <img src="https://i.postimg.cc/mZFhnQ4H/a3898668-6ff6-40af-b0cc-7991ebfe37b2.jpg" alt="Logo" id="companyLogo">
-            </div>
+  <div class="dashboard-wrapper">
+    <div class="top-bar">
+      <div class="logo-area">
+        <div class="logo-box">
+          <div class="logo-box-inner">
+            <img src="https://i.postimg.cc/mZFhnQ4H/a3898668-6ff6-40af-b0cc-7991ebfe37b2.jpg" alt="Company Logo" id="mainLogo">
           </div>
         </div>
-
-        <div class="title-section">
-          <h1 class="main-title">PERFORMANCE EXCELLENCE</h1>
-          <div class="view-badge" id="viewBadge">LOADING...</div>
-        </div>
-
-        <div class="update-section">
-          <div class="update-label">Last Updated</div>
-          <div class="update-time" id="updateTime">--:--</div>
+        <div class="title-area">
+          <h1>Performance Leaderboard</h1>
+          <div class="mode-indicator" id="modeIndicator">LOADING...</div>
+          <span class="category-badge" id="categoryBadge" style="display:none;">ALL</span>
         </div>
       </div>
-    </header>
+      <div class="update-info">
+        <div class="label">Last Updated</div>
+        <div class="time" id="lastUpdate">--:--</div>
+      </div>
+    </div>
 
-    <div class="main-content">
-      <section class="leaderboard-section">
-        <div class="table-header-sticky">
+    <div class="content-grid">
+      <div class="leaderboard-panel">
+        <div class="table-header">
           <table>
-            <thead>
+            <thead id="tableHead">
               <tr>
-                <th style="width: 8%;">RANK</th>
-                <th style="width: 10%;">PHOTO</th>
-                <th style="width: 30%;">EMPLOYEE NAME</th>
-                <th style="width: 13%;">LOAD</th>
-                <th style="width: 13%;">LABOUR ₹</th>
-                <th style="width: 13%;">VAS ₹</th>
-                <th style="width: 13%;">MGA ₹</th>
+                <th style="width: 7%; text-align: center;">RANK</th>
+                <th style="width: 9%; text-align: center;">PHOTO</th>
+                <th style="width: 23%; text-align: left; padding-left: 24px;">NAME</th>
+                <th style="width: 11%; text-align: center;">LOAD</th>
+                <th style="width: 12%; text-align: center;">LABOUR ₹</th>
+                <th style="width: 12%; text-align: center;">VAS ₹</th>
+                <th style="width: 12%; text-align: center;">MGA ₹</th>
+                <th style="width: 14%; text-align: center;">SCORE</th>
               </tr>
             </thead>
           </table>
         </div>
-        <div class="table-container">
-          <div class="table-scroll" id="tableScroll">
-            <table>
-              <tbody id="tableBody"></tbody>
-            </table>
-          </div>
+        <div class="table-body" id="tableBodyContainer">
+          <table>
+            <tbody id="dataRows"></tbody>
+          </table>
         </div>
-      </section>
+      </div>
 
-      <section class="champions-section">
-        <div class="podium-container">
-          <h2 class="podium-title" id="podiumTitle">🏆 TOP 3 PERFORMERS</h2>
-          <div class="podium" id="podium"></div>
-        </div>
-      </section>
+      <div class="champions-panel">
+        <div class="champions-title" id="championsTitle">🏆 TOP 3 PERFORMERS</div>
+        <div class="champions-list" id="championsList"></div>
+      </div>
     </div>
 
-    <footer class="footer" id="footer">
-      REAL-TIME PERFORMANCE TRACKING • ALL BRANCHES
-    </footer>
+    <div class="bottom-bar" id="bottomBar">
+      REAL-TIME TRACKING • ALL BRANCHES
+    </div>
   </div>
 
   <script src="script.js"></script>
