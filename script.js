@@ -294,9 +294,35 @@ function switchView() {
   
   state.currentIndex = (state.currentIndex + 1) % CONFIG.SHEETS.length;
   
+  updateActiveButton();
+  
   setTimeout(() => {
     loadData();
   }, 500);
+}
+
+function updateActiveButton() {
+  const buttons = document.querySelectorAll('.control-btn');
+  buttons.forEach((btn, idx) => {
+    if (idx === state.currentIndex) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function manualSwitch(index) {
+  state.userInteracting = true;
+  stopScrolling();
+  
+  state.currentIndex = index;
+  updateActiveButton();
+  loadData();
+  
+  setTimeout(() => {
+    state.userInteracting = false;
+  }, 3000);
 }
 
 const container = document.getElementById('tableBodyContainer');
@@ -346,6 +372,14 @@ container.addEventListener('scroll', () => {
       startScrolling();
     }, 2000);
   }
+});
+
+// Manual control buttons
+document.querySelectorAll('.control-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const index = parseInt(btn.getAttribute('data-index'));
+    manualSwitch(index);
+  });
 });
 
 loadData();
