@@ -1,287 +1,317 @@
-const SHEET_ID = "148f8oGqJL5u3ujLdwRzm05x7TKpPoqQikyltXa1zTCw";
-const SHEETS = [
-  { name: 'MALAPPURAM ADVISOR TODAY', label: 'ADVISOR - TODAY', viewType: 'today', updateCell: 'LASTUPDATE!A2' },
-  { name: 'MALAPPURAM ADVISOR TOTAL', label: 'ADVISOR - TOTAL', viewType: 'total', updateCell: 'LASTUPDATE!A2' },
-  { name: 'MALAPPURAM TECH TODAY', label: 'MECHANIC - TODAY', viewType: 'today', updateCell: 'LASTUPDATE!A2' },
-  { name: 'MALAPPURAM TECH TOTAL', label: 'MECHANIC - TOTAL', viewType: 'total', updateCell: 'LASTUPDATE!A2' }
-];
-const FALLBACK_IMAGE = 'https://via.placeholder.com/150/e2e8f0/3b82f6?text=N/A';
-const SWITCH_DELAY = 3000; // 3 seconds delay after reaching end before switching
+const CONFIG = {
+  SHEET_ID: "148f8oGqJL5u3ujLdwRzm05x7TKpPoqQikyltXa1zTCw",
+  SHEETS: [
+    { name: 'MALAPPURAM ADVISOR TODAY', label: 'ADVISOR - TODAY', type: 'today', category: 'SA', updateCell: 'LASTUPDATE!A2' },
+    { name: 'MALAPPURAM ADVISOR TODAY', label: 'ADVISOR - TODAY', type: 'today', category: 'BSA', updateCell: 'LASTUPDATE!A2' },
+    { name: 'MALAPPURAM ADVISOR TOTAL', label: 'ADVISOR - THIS MONTH', type: 'total', category: 'SA', updateCell: 'LASTUPDATE!A2' },
+    { name: 'MALAPPURAM ADVISOR TOTAL', label: 'ADVISOR - THIS MONTH', type: 'total', category: 'BSA', updateCell: 'LASTUPDATE!A2' },
+    { name: 'MALAPPURAM TECH TODAY', label: 'MECHANIC - TODAY', type: 'today', category: null, updateCell: 'LASTUPDATE!A2' },
+    { name: 'MALAPPURAM TECH TOTAL', label: 'MECHANIC - THIS MONTH', type: 'total', category: null, updateCell: 'LASTUPDATE!A2' }
+  ],
+  FALLBACK_IMG: 'https://via.placeholder.com/150/e2e8f0/6366f1?text=N/A',
+  SWITCH_DELAY: 15000
+};
 
-let currentSheetIndex = 0;
-let autoScrollInterval = null;
-let isUserScrolling = false;
-let switchTimeout = null;
+let state = {
+  currentIndex: 0,
+  scrollInterval: null,
+  switchTimer: null,
+  userInteracting: false,
+  lastScrollPos: 0
+};
 
-function formatNumber(num) {
-  return num % 1 === 0 ? num.toString() : num.toFixed(2);
+function formatNum(n) {
+  return n % 1 === 0 ? n.toString() : n.toFixed(2);
 }
 
-function parseGoogleSheetData(response) {
-  const jsonString = response.substring(47).slice(0, -2);
-  const data = JSON.parse(jsonString);
-  const rows = data.table.rows;
-  const employees = [];
+function parseSheetData(response) {
+  const json = JSON.parse(response.substring(47).slice(0, -2));
+  const rows = json.table.rows;
+  const data = [];
 
   rows.forEach(row => {
-    const cells = row.c;
-    if (cells && cells[0] && cells[0].v) {
-      const photoURL = cells[5]?.v || FALLBACK_IMAGE;
-      employees.push({
-        name: cells[0]?.v || 'Unknown',
-        load: parseFloat(cells[1]?.v) || 0,
-        labour: parseFloat(cells[2]?.v) || 0,
-        vas: parseFloat(cells[3]?.v) || 0,
-        mga: parseFloat(cells[4]?.v) || 0,
-        photoURL: photoURL
+    const c = row.c;
+    if (c && c[0] && c[0].v) {
+      data.push({
+        name: c[0]?.v || 'Unknown',
+        load: parseFloat(c[1]?.v) || 0,
+        labour: parseFloat(c[2]?.v) || 0,
+        vas: parseFloat(c[3]?.v) || 0,
+        mga: parseFloat(c[4]?.v) || 0,
+        category: c[5]?.v || '',
+        score: parseFloat(c[6]?.v) || 0,
+        photo: c[7]?.v || CONFIG.FALLBACK_IMG
       });
     }
   });
 
-  return employees;
+  return data;
 }
 
-function updateTableHeader(isMechanic) {
-  const headerRow = document.querySelector('.table-header-sticky thead tr');
-  
-  if (isMechanic) {
-    headerRow.innerHTML = `
-      <th style="width: 8%;">RANK</th>
-      <th style="width: 10%;">PHOTO</th>
-      <th style="width: 40%;">EMPLOYEE NAME</th>
-      <th style="width: 21%;">LOAD</th>
-      <th style="width: 21%;">LABOUR ₹</th>
-    `;
-  } else {
-    headerRow.innerHTML = `
-      <th style="width: 8%;">RANK</th>
-      <th style="width: 10%;">PHOTO</th>
-      <th style="width: 30%;">EMPLOYEE NAME</th>
-      <th style="width: 13%;">LOAD</th>
-      <th style="width: 13%;">LABOUR ₹</th>
-      <th style="width: 13%;">VAS ₹</th>
-      <th style="width: 13%;">MGA ₹</th>
-    `;
-  }
-}
-
-async function getLastUpdateTime() {
-  try {
-    const currentSheet = SHEETS[currentSheetIndex];
-    const cellUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${currentSheet.updateCell.split('!')[0]}&range=${currentSheet.updateCell.split('!')[1]}`;
-    
-    const response = await fetch(cellUrl);
-    const text = await response.text();
-    const jsonString = text.substring(47).slice(0, -2);
-    const data = JSON.parse(jsonString);
-    
-    if (data.table.rows && data.table.rows[0] && data.table.rows[0].c && data.table.rows[0].c[0]) {
-      const cellValue = data.table.rows[0].c[0].v || 'N/A';
-      document.getElementById('updateTime').textContent = cellValue;
-    }
-  } catch (error) {
-    console.error('Error fetching update time:', error);
-  }
-}
-
-function createChampion(employee, rank, isMechanic) {
-  if (isMechanic) {
-    return `
-      <div class="champion rank-${rank}">
-        <div class="champion-avatar">
-          <div class="avatar-ring">
-            <div class="avatar-inner">
-              <img src="${employee.photoURL}" class="champion-img" alt="${employee.name}" onerror="this.src='${FALLBACK_IMAGE}'">
-            </div>
-          </div>
-          <div class="rank-badge">${rank}</div>
-        </div>
-        <div class="champion-info">
-          <div class="champion-name">${employee.name}</div>
-          <div class="champion-metrics">
-            <div class="metric-item">
-              <div class="metric-label">Load</div>
-              <div class="metric-value">${formatNumber(employee.load)}</div>
-            </div>
-            <div class="metric-item">
-              <div class="metric-label">Labour</div>
-              <div class="metric-value">₹${employee.labour.toLocaleString()}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  } else {
-    return `
-      <div class="champion rank-${rank}">
-        <div class="champion-avatar">
-          <div class="avatar-ring">
-            <div class="avatar-inner">
-              <img src="${employee.photoURL}" class="champion-img" alt="${employee.name}" onerror="this.src='${FALLBACK_IMAGE}'">
-            </div>
-          </div>
-          <div class="rank-badge">${rank}</div>
-        </div>
-        <div class="champion-info">
-          <div class="champion-name">${employee.name}</div>
-          <div class="champion-metrics">
-            <div class="metric-item">
-              <div class="metric-label">Load</div>
-              <div class="metric-value">${formatNumber(employee.load)}</div>
-            </div>
-            <div class="metric-item">
-              <div class="metric-label">Labour</div>
-              <div class="metric-value">₹${employee.labour.toLocaleString()}</div>
-            </div>
-            <div class="metric-item">
-              <div class="metric-label">VAS</div>
-              <div class="metric-value">₹${employee.vas.toLocaleString()}</div>
-            </div>
-            <div class="metric-item">
-              <div class="metric-label">MGA</div>
-              <div class="metric-value">₹${employee.mga.toLocaleString()}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-}
-
-function displayData(employees) {
-  if (!employees.length) return;
-
-  const currentSheet = SHEETS[currentSheetIndex];
-  const isToday = currentSheet.viewType === 'today';
-  const isMechanic = currentSheet.label.includes('MECHANIC');
-
-  document.getElementById('podiumTitle').innerHTML = 
-    isToday ? '⚡ TODAY\'S TOP 3' : '🏆 TOTAL TOP 3';
-
-  const sortedByLabour = [...employees].sort((a, b) => b.labour - a.labour);
-  
-  const top3 = sortedByLabour.slice(0, 3);
-  document.getElementById('podium').innerHTML = top3
-    .map((emp, i) => createChampion(emp, i + 1, isMechanic))
-    .join('');
-
-  const tableRows = sortedByLabour.map((emp, i) => {
-    if (isMechanic) {
-      return `
+function updateHeader(isMech) {
+  const head = document.getElementById('tableHead');
+  if (isMech) {
+    head.innerHTML = `
       <tr>
-        <td class="rank-cell">${i + 1}</td>
-        <td><img src="${emp.photoURL}" class="table-avatar" onerror="this.src='${FALLBACK_IMAGE}'"></td>
-        <td class="name-cell">${emp.name}</td>
-        <td>${formatNumber(emp.load)}</td>
-        <td class="value-cell">₹${emp.labour.toLocaleString()}</td>
+        <th style="width: 8%; text-align: center;">RANK</th>
+        <th style="width: 12%; text-align: center;">PHOTO</th>
+        <th style="width: 50%; text-align: left; padding-left: 24px;">NAME</th>
+        <th style="width: 15%; text-align: center;">LOAD</th>
+        <th style="width: 15%; text-align: center;">LABOUR ₹</th>
       </tr>
     `;
+  } else {
+    head.innerHTML = `
+      <tr>
+        <th style="width: 7%; text-align: center;">RANK</th>
+        <th style="width: 9%; text-align: center;">PHOTO</th>
+        <th style="width: 23%; text-align: left; padding-left: 24px;">NAME</th>
+        <th style="width: 11%; text-align: center;">LOAD</th>
+        <th style="width: 12%; text-align: center;">LABOUR ₹</th>
+        <th style="width: 12%; text-align: center;">VAS ₹</th>
+        <th style="width: 12%; text-align: center;">MGA ₹</th>
+        <th style="width: 14%; text-align: center;">SCORE</th>
+      </tr>
+    `;
+  }
+}
+
+async function fetchUpdateTime() {
+  try {
+    const sheet = CONFIG.SHEETS[state.currentIndex];
+    const [sheetName, cell] = sheet.updateCell.split('!');
+    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}&range=${cell}`;
+    
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    
+    if (json.table.rows?.[0]?.c?.[0]?.v) {
+      document.getElementById('lastUpdate').textContent = json.table.rows[0].c[0].v;
+    }
+  } catch (e) {
+    console.error('Update time error:', e);
+  }
+}
+
+function buildChampionCard(emp, rank, isMech) {
+  const stats = isMech ? `
+    <div class="stat-box">
+      <div class="stat-label">Load</div>
+      <div class="stat-value">${formatNum(emp.load)}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Labour</div>
+      <div class="stat-value">₹${emp.labour.toLocaleString()}</div>
+    </div>
+  ` : `
+    <div class="stat-box">
+      <div class="stat-label">Load</div>
+      <div class="stat-value">${formatNum(emp.load)}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Labour</div>
+      <div class="stat-value">₹${emp.labour.toLocaleString()}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Score</div>
+      <div class="stat-value">${formatNum(emp.score)}</div>
+    </div>
+  `;
+
+  return `
+    <div class="champion-card rank-${rank}">
+      <div class="champion-avatar-wrap">
+        <div class="champion-avatar-ring">
+          <div class="champion-avatar-inner">
+            <img src="${emp.photo}" alt="${emp.name}" onerror="this.src='${CONFIG.FALLBACK_IMG}'">
+          </div>
+        </div>
+        <div class="champion-rank-badge">${rank}</div>
+      </div>
+      <div class="champion-details">
+        <div class="champion-name">${emp.name}</div>
+        <div class="champion-stats">${stats}</div>
+      </div>
+    </div>
+  `;
+}
+
+function startScrolling() {
+  if (state.scrollInterval) clearInterval(state.scrollInterval);
+  
+  const container = document.getElementById('tableBodyContainer');
+  const maxScroll = container.scrollHeight - container.clientHeight;
+  
+  // If content fits without scrolling, switch immediately after delay
+  if (maxScroll <= 0) {
+    setTimeout(() => {
+      switchView();
+    }, 5000);
+    return;
+  }
+  
+  // Start from current scroll position
+  let scrollPos = container.scrollTop;
+  const scrollSpeed = 1.5;
+  const pauseAtBottom = 3000;
+  let pausing = false;
+  
+  state.scrollInterval = setInterval(() => {
+    if (state.userInteracting) {
+      // Update scroll position to current position when user is interacting
+      scrollPos = container.scrollTop;
+      return;
+    }
+    
+    if (pausing) return;
+    
+    if (scrollPos >= maxScroll) {
+      pausing = true;
+      clearInterval(state.scrollInterval);
+      setTimeout(() => {
+        switchView();
+      }, pauseAtBottom);
     } else {
-      return `
-      <tr>
-        <td class="rank-cell">${i + 1}</td>
-        <td><img src="${emp.photoURL}" class="table-avatar" onerror="this.src='${FALLBACK_IMAGE}'"></td>
-        <td class="name-cell">${emp.name}</td>
-        <td>${formatNumber(emp.load)}</td>
-        <td class="value-cell">₹${emp.labour.toLocaleString()}</td>
-        <td class="value-cell">₹${emp.vas.toLocaleString()}</td>
-        <td class="value-cell">₹${emp.mga.toLocaleString()}</td>
-      </tr>
-    `;
-    }
-  }).join('');
-
-  // Update table header based on type
-  updateTableHeader(isMechanic);
-
-  const tableBody = document.getElementById('tableBody');
-  tableBody.innerHTML = tableRows;
-
-  // Reset scroll to top when switching sheets
-  const tableContainer = document.querySelector('.table-container');
-  tableContainer.scrollTop = 0;
-
-  startAutoScroll();
-}
-
-function showRefreshIndicator() {
-  const indicator = document.getElementById('refreshIndicator');
-  indicator.classList.add('show');
-  setTimeout(() => indicator.classList.remove('show'), 2000);
-}
-
-async function fetchData() {
-  try {
-    const currentSheet = SHEETS[currentSheetIndex];
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(currentSheet.name)}`;
-    
-    const response = await fetch(sheetUrl);
-    const text = await response.text();
-    const employees = parseGoogleSheetData(text);
-    
-    if (employees.length === 0) throw new Error('No data found');
-
-    displayData(employees);
-    await getLastUpdateTime();
-    
-    document.getElementById('viewBadge').textContent = currentSheet.label;
-    document.getElementById('footer').textContent = 
-      `${currentSheet.label} • LIVE TRACKING • ALL BRANCHES`;
-
-  } catch (error) {
-    console.error('Error:', error);
-    document.getElementById('footer').textContent = 'CONNECTION ERROR • RETRYING...';
-    setTimeout(fetchData, 5000);
-  }
-}
-
-function switchSheet() {
-  showRefreshIndicator();
-  currentSheetIndex = (currentSheetIndex + 1) % SHEETS.length;
-  fetchData();
-}
-
-function startAutoScroll() {
-  const tableContainer = document.querySelector('.table-container');
-  
-  if (autoScrollInterval) clearInterval(autoScrollInterval);
-  if (switchTimeout) clearTimeout(switchTimeout);
-  
-  tableContainer.scrollTop = 0;
-  
-  autoScrollInterval = setInterval(() => {
-    if (!isUserScrolling) {
-      tableContainer.scrollTop += 1;
-      
-      // Check if we've reached the bottom
-      const isAtBottom = tableContainer.scrollTop >= (tableContainer.scrollHeight - tableContainer.clientHeight - 5);
-      
-      if (isAtBottom) {
-        clearInterval(autoScrollInterval);
-        
-        // Wait 3 seconds then switch to next sheet
-        switchTimeout = setTimeout(() => {
-          switchSheet();
-        }, SWITCH_DELAY);
-      }
+      scrollPos += scrollSpeed;
+      container.scrollTop = scrollPos;
     }
   }, 50);
 }
 
-function handleMouseEnter() {
-  isUserScrolling = true;
+function renderData(data) {
+  if (!data.length) return;
+
+  const sheet = CONFIG.SHEETS[state.currentIndex];
+  const isToday = sheet.type === 'today';
+  const isMech = sheet.label.includes('MECHANIC');
+  const category = sheet.category;
+
+  let filteredData = data;
+  if (category) {
+    filteredData = data.filter(emp => emp.category === category);
+  }
+
+  const categoryBadge = document.getElementById('categoryBadge');
+  if (category) {
+    categoryBadge.textContent = category;
+    categoryBadge.style.display = 'inline-block';
+  } else {
+    categoryBadge.style.display = 'none';
+  }
+
+  document.getElementById('championsTitle').innerHTML = isToday ? '⚡ TODAY\'S TOP 3' : '🏆 THIS MONTH TOP 3';
+
+  const sorted = [...filteredData].sort((a, b) => b.score - a.score);
+  
+  const top3 = sorted.slice(0, 3);
+  document.getElementById('championsList').innerHTML = top3.map((e, i) => buildChampionCard(e, i + 1, isMech)).join('');
+
+  const rows = sorted.map((e, i) => {
+    const rankClass = i === 0 ? 'top-1' : i === 1 ? 'top-2' : i === 2 ? 'top-3' : '';
+    
+    if (isMech) {
+      return `
+        <tr class="${rankClass}">
+          <td class="rank-col" style="width: 8%; text-align: center;">${i + 1}</td>
+          <td class="photo-col" style="width: 12%; text-align: center;"><img src="${e.photo}" onerror="this.src='${CONFIG.FALLBACK_IMG}'"></td>
+          <td class="name-col" style="width: 50%; text-align: left;">${e.name}</td>
+          <td style="width: 15%; text-align: center;">${formatNum(e.load)}</td>
+          <td class="value-col" style="width: 15%; text-align: center;">₹${e.labour.toLocaleString()}</td>
+        </tr>
+      `;
+    } else {
+      return `
+        <tr class="${rankClass}">
+          <td class="rank-col" style="width: 7%; text-align: center;">${i + 1}</td>
+          <td class="photo-col" style="width: 9%; text-align: center;"><img src="${e.photo}" onerror="this.src='${CONFIG.FALLBACK_IMG}'"></td>
+          <td class="name-col" style="width: 23%; text-align: left;">${e.name}</td>
+          <td style="width: 11%; text-align: center;">${formatNum(e.load)}</td>
+          <td class="value-col" style="width: 12%; text-align: center;">₹${e.labour.toLocaleString()}</td>
+          <td class="value-col" style="width: 12%; text-align: center;">₹${e.vas.toLocaleString()}</td>
+          <td class="value-col" style="width: 12%; text-align: center;">₹${e.mga.toLocaleString()}</td>
+          <td class="value-col" style="width: 14%; text-align: center;">${formatNum(e.score)}</td>
+        </tr>
+      `;
+    }
+  }).join('');
+
+  updateHeader(isMech);
+  
+  const tbody = document.getElementById('dataRows');
+  tbody.innerHTML = rows;
+
+  const container = document.getElementById('tableBodyContainer');
+  container.scrollTop = 0;
+  
+  setTimeout(() => {
+    startScrolling();
+  }, 100);
 }
 
-function handleMouseLeave() {
-  isUserScrolling = false;
+function showSwitchNotif() {
+  const notif = document.getElementById('switchNotification');
+  notif.classList.add('active');
+  setTimeout(() => notif.classList.remove('active'), 2000);
 }
 
-const tableContainer = document.querySelector('.table-container');
-tableContainer.addEventListener('mouseenter', handleMouseEnter);
-tableContainer.addEventListener('mouseleave', handleMouseLeave);
+async function loadData() {
+  try {
+    const sheet = CONFIG.SHEETS[state.currentIndex];
+    const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheet.name)}`;
+    
+    const res = await fetch(url);
+    const text = await res.text();
+    const data = parseSheetData(text);
+    
+    document.getElementById('modeIndicator').textContent = sheet.label;
+    renderData(data);
+    await fetchUpdateTime();
+  } catch (e) {
+    console.error('Load error:', e);
+    document.getElementById('modeIndicator').textContent = 'ERROR';
+  }
+}
 
-fetchData();
+function switchView() {
+  if (state.userInteracting) return;
+  
+  showSwitchNotif();
+  
+  state.currentIndex = (state.currentIndex + 1) % CONFIG.SHEETS.length;
+  
+  if (state.scrollInterval) {
+    clearInterval(state.scrollInterval);
+    state.scrollInterval = null;
+  }
+  
+  setTimeout(() => {
+    loadData();
+  }, 500);
+}
 
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) fetchData();
+const container = document.getElementById('tableBodyContainer');
+
+container.addEventListener('mouseenter', () => {
+  state.userInteracting = true;
 });
+
+container.addEventListener('mouseleave', () => {
+  state.userInteracting = false;
+});
+
+container.addEventListener('wheel', () => {
+  state.userInteracting = true;
+  clearTimeout(state.wheelTimeout);
+  state.wheelTimeout = setTimeout(() => {
+    state.userInteracting = false;
+  }, 2000);
+});
+
+loadData();
+
+setInterval(() => {
+  if (!state.userInteracting) {
+    loadData();
+  }
+}, 30000);
