@@ -137,6 +137,106 @@ body {
   color: #6366f1;
 }
 
+.manual-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.control-btn {
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.control-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.control-btn:hover::before {
+  left: 100%;
+}
+
+.btn-icon {
+  font-size: 13px;
+  transition: transform 0.3s ease;
+}
+
+.btn-text {
+  font-size: 9px;
+}
+
+.control-btn:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border-color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.control-btn:hover .btn-icon {
+  transform: scale(1.2);
+}
+
+.control-btn.active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.control-btn.active .btn-icon {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.7);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.control-btn:active {
+  transform: translateY(0);
+}
+
 .content-grid {
   display: flex;
   gap: 20px;
@@ -313,10 +413,10 @@ body {
 
 .champions-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 900;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   background: linear-gradient(135deg, #fbbf24 0%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -553,7 +653,7 @@ body {
 /* Responsive Design */
 @media (max-width: 1400px) {
   .champions-panel {
-    width: 400px;
+    width: 420px;
   }
   
   .title-area h1 {
@@ -578,16 +678,24 @@ body {
   
   .champions-panel {
     width: 100%;
-    max-height: 350px;
+    max-height: none;
+    padding: 20px;
+  }
+  
+  .champions-title {
+    font-size: 22px;
+    margin-bottom: 16px;
   }
   
   .champions-list {
     flex-direction: row;
     overflow-x: auto;
+    gap: 14px;
   }
   
   .champion-card {
-    min-width: 300px;
+    min-width: 280px;
+    flex-shrink: 0;
   }
 }
 
@@ -603,101 +711,206 @@ body {
     gap: 15px;
   }
   
+  .logo-area {
+    gap: 15px;
+  }
+  
   .logo-box {
     width: 60px;
     height: 60px;
   }
   
   .title-area h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
   
   .mode-indicator {
-    font-size: 14px;
-    padding: 6px 16px;
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+  
+  .category-badge {
+    font-size: 11px;
+    padding: 5px 14px;
+  }
+  
+  .update-info {
+    padding: 12px 18px;
+  }
+  
+  .update-info .label {
+    font-size: 11px;
+  }
+  
+  .update-info .time {
+    font-size: 18px;
+  }
+  
+  .manual-controls {
+    gap: 6px;
+  }
+  
+  .control-btn {
+    padding: 6px 10px;
+    font-size: 9px;
+    border-radius: 8px;
+  }
+  
+  .btn-icon {
+    font-size: 12px;
+  }
+  
+  .btn-text {
+    font-size: 8px;
   }
   
   .table-header th {
-    font-size: 13px;
-    padding: 16px 8px;
+    font-size: 12px;
+    padding: 14px 6px;
   }
   
   .table-body td {
-    font-size: 15px;
-    padding: 14px 8px;
+    font-size: 14px;
+    padding: 12px 6px;
+  }
+  
+  .rank-col {
+    font-size: 20px;
   }
   
   .photo-col img {
     width: 50px;
     height: 50px;
+    border-width: 2px;
+  }
+  
+  .name-col {
+    font-size: 15px;
+    padding-left: 12px !important;
+  }
+  
+  .value-col {
+    font-size: 14px;
+  }
+  
+  .top-1 .value-col {
+    font-size: 15px;
   }
   
   .champions-panel {
-    padding: 20px;
+    padding: 16px;
+    max-height: 280px;
   }
   
   .champions-title {
-    font-size: 20px;
-    margin-bottom: 16px;
+    font-size: 18px;
+    margin-bottom: 12px;
   }
   
   .champion-card {
-    padding: 14px;
-    gap: 14px;
-    min-height: 95px;
+    padding: 12px;
+    gap: 12px;
+    min-height: 90px;
+    min-width: 260px;
   }
   
   .champion-card.rank-1 {
-    padding: 16px;
-    min-height: 105px;
+    padding: 14px;
+    min-height: 100px;
   }
   
   .champion-avatar-ring {
-    width: 65px;
-    height: 65px;
+    width: 60px;
+    height: 60px;
   }
   
   .champion-card.rank-1 .champion-avatar-ring {
-    width: 75px;
-    height: 75px;
+    width: 70px;
+    height: 70px;
   }
   
   .champion-rank-badge {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+    top: -6px;
+    right: -6px;
+  }
+  
+  .champion-card.rank-1 .champion-rank-badge {
     width: 34px;
     height: 34px;
     font-size: 16px;
   }
   
-  .champion-card.rank-1 .champion-rank-badge {
-    width: 38px;
-    height: 38px;
-    font-size: 18px;
+  .champion-card.rank-1 .champion-rank-badge::after,
+  .champion-card.rank-2 .champion-rank-badge::after,
+  .champion-card.rank-3 .champion-rank-badge::after {
+    font-size: 12px;
   }
   
   .champion-name {
-    font-size: 15px;
+    font-size: 14px;
   }
   
   .champion-card.rank-1 .champion-name {
-    font-size: 17px;
+    font-size: 16px;
+  }
+  
+  .champion-details {
+    gap: 8px;
+  }
+  
+  .champion-stats {
+    gap: 8px;
   }
   
   .stat-label {
-    font-size: 10px;
+    font-size: 9px;
   }
   
   .stat-value {
-    font-size: 13px;
+    font-size: 12px;
   }
   
   .champion-card.rank-1 .stat-value {
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 
 @media (max-width: 480px) {
   .title-area h1 {
-    font-size: 20px;
+    font-size: 18px;
+  }
+  
+  .mode-indicator {
+    font-size: 11px;
+    padding: 5px 12px;
+  }
+  
+  .category-badge {
+    font-size: 10px;
+    padding: 4px 12px;
+    margin-left: 8px;
+  }
+  
+  .manual-controls {
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+  
+  .control-btn {
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+  
+  .btn-text {
+    font-size: 7px;
+    line-height: 1.2;
+  }
+  
+  .btn-icon {
+    font-size: 11px;
   }
   
   .champions-list {
@@ -705,6 +918,33 @@ body {
   }
   
   .champion-card {
-    min-width: 250px;
+    min-width: 240px;
+  }
+  
+  .table-header th {
+    font-size: 10px;
+    padding: 12px 4px;
+  }
+  
+  .table-body td {
+    font-size: 12px;
+    padding: 10px 4px;
+  }
+  
+  .rank-col {
+    font-size: 18px;
+  }
+  
+  .photo-col img {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .name-col {
+    font-size: 13px;
+  }
+  
+  .value-col {
+    font-size: 12px;
   }
 }
