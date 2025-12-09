@@ -143,6 +143,10 @@ function stopScrolling() {
     clearInterval(state.scrollInterval);
     state.scrollInterval = null;
   }
+  if (state.switchTimer) {
+    clearTimeout(state.switchTimer);
+    state.switchTimer = null;
+  }
   state.isScrolling = false;
   state.scrollPaused = false;
 }
@@ -154,7 +158,7 @@ function startScrolling() {
   const maxScroll = container.scrollHeight - container.clientHeight;
   
   if (maxScroll <= 10) {
-    setTimeout(() => {
+    state.switchTimer = setTimeout(() => {
       if (!state.userInteracting) {
         switchView();
       }
@@ -164,8 +168,8 @@ function startScrolling() {
   
   // Start from current scroll position instead of resetting to 0
   let scrollPos = container.scrollTop;
-  const scrollSpeed = 2;
-  const pauseAtBottom = 4000;
+  const scrollSpeed = 3; // Increased speed from 2 to 3
+  const pauseAtBottom = 3000; // Reduced pause from 4000 to 3000
   state.isScrolling = true;
   
   state.scrollInterval = setInterval(() => {
@@ -177,7 +181,7 @@ function startScrolling() {
       state.scrollPaused = true;
       stopScrolling();
       
-      setTimeout(() => {
+      state.switchTimer = setTimeout(() => {
         if (!state.userInteracting) {
           switchView();
         }
@@ -186,7 +190,7 @@ function startScrolling() {
       scrollPos += scrollSpeed;
       container.scrollTop = scrollPos;
     }
-  }, 50);
+  }, 40); // Reduced interval from 50 to 40 for smoother scrolling
 }
 
 function renderData(data) {
@@ -252,11 +256,15 @@ function renderData(data) {
   tbody.innerHTML = rows;
 
   const container = document.getElementById('tableBodyContainer');
+  // Reset scroll to top on new data load
   container.scrollTop = 0;
+  
+  // Clear any existing timers before starting new scroll
+  stopScrolling();
   
   setTimeout(() => {
     startScrolling();
-  }, 500);
+  }, 800); // Increased delay from 500 to 800 for better transition
 }
 
 function showSwitchNotif() {
@@ -285,12 +293,12 @@ async function loadData() {
 
 function switchView() {
   if (state.userInteracting) {
-    setTimeout(switchView, 5000);
+    state.switchTimer = setTimeout(switchView, 5000);
     return;
   }
   
   showSwitchNotif();
-  stopScrolling();
+  stopScrolling(); // Clear all timers
   
   state.currentIndex = (state.currentIndex + 1) % CONFIG.SHEETS.length;
   
@@ -298,7 +306,7 @@ function switchView() {
   
   setTimeout(() => {
     loadData();
-  }, 500);
+  }, 600); // Increased delay for cleaner transition
 }
 
 function updateActiveButton() {
