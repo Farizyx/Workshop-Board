@@ -155,42 +155,52 @@ function startScrolling() {
   stopScrolling();
   
   const container = document.getElementById('tableBodyContainer');
-  const maxScroll = container.scrollHeight - container.clientHeight;
   
-  if (maxScroll <= 10) {
-    state.switchTimer = setTimeout(() => {
-      if (!state.userInteracting) {
-        switchView();
-      }
-    }, CONFIG.SWITCH_DELAY);
-    return;
-  }
-  
-  // Start from current scroll position instead of resetting to 0
-  let scrollPos = container.scrollTop;
-  const scrollSpeed = 3; // Increased speed from 2 to 3
-  const pauseAtBottom = 3000; // Reduced pause from 4000 to 3000
-  state.isScrolling = true;
-  
-  state.scrollInterval = setInterval(() => {
-    if (state.userInteracting || state.scrollPaused) {
-      return;
-    }
+  // Wait a bit to ensure container is properly rendered
+  setTimeout(() => {
+    const maxScroll = container.scrollHeight - container.clientHeight;
     
-    if (scrollPos >= maxScroll - 5) {
-      state.scrollPaused = true;
-      stopScrolling();
-      
+    // If content fits in view, just wait and switch
+    if (maxScroll <= 10) {
       state.switchTimer = setTimeout(() => {
         if (!state.userInteracting) {
           switchView();
         }
-      }, pauseAtBottom);
-    } else {
-      scrollPos += scrollSpeed;
-      container.scrollTop = scrollPos;
+      }, CONFIG.SWITCH_DELAY);
+      return;
     }
-  }, 40); // Reduced interval from 50 to 40 for smoother scrolling
+    
+    // Always start from top for new page loads
+    let scrollPos = 0;
+    container.scrollTop = 0;
+    
+    const scrollSpeed = 2.5; // Balanced speed
+    const pauseAtBottom = 3000;
+    state.isScrolling = true;
+    
+    state.scrollInterval = setInterval(() => {
+      if (state.userInteracting || state.scrollPaused) {
+        return;
+      }
+      
+      // Recalculate maxScroll in case content changed
+      const currentMaxScroll = container.scrollHeight - container.clientHeight;
+      
+      if (scrollPos >= currentMaxScroll - 10) {
+        state.scrollPaused = true;
+        stopScrolling();
+        
+        state.switchTimer = setTimeout(() => {
+          if (!state.userInteracting) {
+            switchView();
+          }
+        }, pauseAtBottom);
+      } else {
+        scrollPos += scrollSpeed;
+        container.scrollTop = scrollPos;
+      }
+    }, 45);
+  }, 100); // Small delay to ensure DOM is ready
 }
 
 function renderData(data) {
@@ -342,7 +352,7 @@ container.addEventListener('mouseenter', () => {
 container.addEventListener('mouseleave', () => {
   state.userInteracting = false;
   if (!state.isScrolling) {
-    startScrolling();
+    resumeScrollingFromCurrent();
   }
 });
 
@@ -355,7 +365,7 @@ container.addEventListener('touchend', () => {
   setTimeout(() => {
     state.userInteracting = false;
     if (!state.isScrolling) {
-      startScrolling();
+      resumeScrollingFromCurrent();
     }
   }, 2000);
 });
@@ -367,9 +377,8 @@ container.addEventListener('wheel', (e) => {
   clearTimeout(state.wheelTimeout);
   state.wheelTimeout = setTimeout(() => {
     state.userInteracting = false;
-    if (!state.isScrolling) {
-      startScrolling();
-    }
+    // Resume scrolling from current position
+    resumeScrollingFromCurrent();
   }, 3000);
 });
 
@@ -377,10 +386,56 @@ container.addEventListener('scroll', () => {
   if (!state.isScrolling && !state.userInteracting) {
     clearTimeout(state.manualScrollTimeout);
     state.manualScrollTimeout = setTimeout(() => {
-      startScrolling();
+      // Resume scrolling from current position
+      resumeScrollingFromCurrent();
     }, 2000);
   }
 });
+
+// New function to resume scrolling from current position
+function resumeScrollingFromCurrent() {
+  stopScrolling();
+  
+  const container = document.getElementById('tableBodyContainer');
+  const maxScroll = container.scrollHeight - container.clientHeight;
+  
+  if (maxScroll <= 10) {
+    state.switchTimer = setTimeout(() => {
+      if (!state.userInteracting) {
+        switchView();
+      }
+    }, CONFIG.SWITCH_DELAY);
+    return;
+  }
+  
+  // Start from CURRENT scroll position (not reset to 0)
+  let scrollPos = container.scrollTop;
+  const scrollSpeed = 2.5;
+  const pauseAtBottom = 3000;
+  state.isScrolling = true;
+  
+  state.scrollInterval = setInterval(() => {
+    if (state.userInteracting || state.scrollPaused) {
+      return;
+    }
+    
+    const currentMaxScroll = container.scrollHeight - container.clientHeight;
+    
+    if (scrollPos >= currentMaxScroll - 10) {
+      state.scrollPaused = true;
+      stopScrolling();
+      
+      state.switchTimer = setTimeout(() => {
+        if (!state.userInteracting) {
+          switchView();
+        }
+      }, pauseAtBottom);
+    } else {
+      scrollPos += scrollSpeed;
+      container.scrollTop = scrollPos;
+    }
+  }, 45);
+}
 
 // Manual control buttons
 document.querySelectorAll('.control-btn').forEach(btn => {
