@@ -162,8 +162,8 @@ function startScrolling() {
     return;
   }
   
-  container.scrollTop = 0;
-  let scrollPos = 0;
+  // Start from current scroll position instead of resetting to 0
+  let scrollPos = container.scrollTop;
   const scrollSpeed = 2;
   const pauseAtBottom = 4000;
   state.isScrolling = true;
