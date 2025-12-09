@@ -18,7 +18,8 @@ let state = {
   switchTimer: null,
   userInteracting: false,
   scrollPaused: false,
-  isScrolling: false
+  isScrolling: false,
+  savedScrollPosition: 0  // NEW: Save scroll position before reload
 };
 
 function formatNum(n) {
@@ -266,15 +267,26 @@ function renderData(data) {
   tbody.innerHTML = rows;
 
   const container = document.getElementById('tableBodyContainer');
-  // Reset scroll to top on new data load
-  container.scrollTop = 0;
   
-  // Clear any existing timers before starting new scroll
-  stopScrolling();
-  
-  setTimeout(() => {
-    startScrolling();
-  }, 800); // Increased delay from 500 to 800 for better transition
+  // NEW: Restore saved scroll position if reloading same view, otherwise reset to top
+  if (state.savedScrollPosition > 0 && state.isScrolling) {
+    // Reloading while scrolling - restore position
+    setTimeout(() => {
+      container.scrollTop = state.savedScrollPosition;
+      resumeScrollingFromCurrent();
+    }, 100);
+  } else {
+    // New view switch - start from top
+    container.scrollTop = 0;
+    state.savedScrollPosition = 0;
+    
+    // Clear any existing timers before starting new scroll
+    stopScrolling();
+    
+    setTimeout(() => {
+      startScrolling();
+    }, 800);
+  }
 }
 
 function showSwitchNotif() {
@@ -287,6 +299,12 @@ async function loadData() {
   try {
     const sheet = CONFIG.SHEETS[state.currentIndex];
     const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheet.name)}`;
+    
+    // NEW: Save current scroll position before reloading
+    const container = document.getElementById('tableBodyContainer');
+    if (container && state.isScrolling) {
+      state.savedScrollPosition = container.scrollTop;
+    }
     
     const res = await fetch(url);
     const text = await res.text();
@@ -309,6 +327,9 @@ function switchView() {
   
   showSwitchNotif();
   stopScrolling(); // Clear all timers
+  
+  // NEW: Reset saved scroll position when switching views
+  state.savedScrollPosition = 0;
   
   state.currentIndex = (state.currentIndex + 1) % CONFIG.SHEETS.length;
   
@@ -333,6 +354,9 @@ function updateActiveButton() {
 function manualSwitch(index) {
   state.userInteracting = true;
   stopScrolling();
+  
+  // NEW: Reset saved scroll position on manual switch
+  state.savedScrollPosition = 0;
   
   state.currentIndex = index;
   updateActiveButton();
