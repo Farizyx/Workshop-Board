@@ -1,14 +1,11 @@
 const CONFIG = {
   SHEET_ID: "148f8oGqJL5u3ujLdwRzm05x7TKpPoqQikyltXa1zTCw",
   SHEETS: [
-    { name: 'MALAPPURAM ADVISOR TODAY', label: 'ADVISOR - TODAY', type: 'today', category: 'SA', updateCell: 'LASTUPDATE!A2' },
-    { name: 'MALAPPURAM ADVISOR TODAY', label: 'ADVISOR - TODAY', type: 'today', category: 'BSA', updateCell: 'LASTUPDATE!A2' },
     { name: 'MALAPPURAM ADVISOR TOTAL', label: 'ADVISOR - THIS MONTH', type: 'total', category: 'SA', updateCell: 'LASTUPDATE!A2' },
     { name: 'MALAPPURAM ADVISOR TOTAL', label: 'ADVISOR - THIS MONTH', type: 'total', category: 'BSA', updateCell: 'LASTUPDATE!A2' },
-    { name: 'MALAPPURAM TECH TODAY', label: 'MECHANIC - TODAY', type: 'today', category: null, updateCell: 'LASTUPDATE!A2' },
     { name: 'MALAPPURAM TECH TOTAL', label: 'MECHANIC - THIS MONTH', type: 'total', category: null, updateCell: 'LASTUPDATE!A2' }
   ],
-  FALLBACK_IMG: 'https://via.placeholder.com/150/e2e8f0/6366f1?text=N/A',
+  FALLBACK_IMG: 'https://via.placeholder.com/150/e8ecf0/2563eb?text=N/A',
   SWITCH_DELAY: 15000
 };
 
@@ -19,7 +16,7 @@ let state = {
   userInteracting: false,
   scrollPaused: false,
   isScrolling: false,
-  savedScrollPosition: 0  // NEW: Save scroll position before reload
+  savedScrollPosition: 0
 };
 
 function formatNum(n) {
@@ -55,24 +52,24 @@ function updateHeader(isMech) {
   if (isMech) {
     head.innerHTML = `
       <tr>
-        <th style="width: 8%; text-align: center;">RANK</th>
-        <th style="width: 12%; text-align: center;">PHOTO</th>
-        <th style="width: 50%; text-align: left; padding-left: 24px;">NAME</th>
-        <th style="width: 15%; text-align: center;">LOAD</th>
-        <th style="width: 15%; text-align: center;">LABOUR ₹</th>
+        <th class="col-rank">RANK</th>
+        <th class="col-photo">PHOTO</th>
+        <th class="col-name">NAME</th>
+        <th class="col-data">LOAD</th>
+        <th class="col-data">LABOUR ₹</th>
       </tr>
     `;
   } else {
     head.innerHTML = `
       <tr>
-        <th style="width: 7%; text-align: center;">RANK</th>
-        <th style="width: 9%; text-align: center;">PHOTO</th>
-        <th style="width: 23%; text-align: left; padding-left: 24px;">NAME</th>
-        <th style="width: 11%; text-align: center;">LOAD</th>
-        <th style="width: 12%; text-align: center;">LABOUR ₹</th>
-        <th style="width: 12%; text-align: center;">VAS ₹</th>
-        <th style="width: 12%; text-align: center;">MGA ₹</th>
-        <th style="width: 14%; text-align: center;">SCORE</th>
+        <th class="col-rank">RANK</th>
+        <th class="col-photo">PHOTO</th>
+        <th class="col-name">NAME</th>
+        <th class="col-data">LOAD</th>
+        <th class="col-data">LABOUR ₹</th>
+        <th class="col-data">VAS ₹</th>
+        <th class="col-data">MGA ₹</th>
+        <th class="col-score">SCORE</th>
       </tr>
     `;
   }
@@ -99,39 +96,37 @@ async function fetchUpdateTime() {
 function buildChampionCard(emp, rank, isMech) {
   const stats = isMech ? `
     <div class="stat-box">
-      <div class="stat-label">Load</div>
-      <div class="stat-value">${formatNum(emp.load)}</div>
+      <div class="stat-label">LOAD</div>
+      <div class="stat-number">${formatNum(emp.load)}</div>
     </div>
     <div class="stat-box">
-      <div class="stat-label">Labour</div>
-      <div class="stat-value">₹${emp.labour.toLocaleString()}</div>
+      <div class="stat-label">LABOUR</div>
+      <div class="stat-number">₹${emp.labour.toLocaleString()}</div>
     </div>
   ` : `
     <div class="stat-box">
-      <div class="stat-label">Load</div>
-      <div class="stat-value">${formatNum(emp.load)}</div>
+      <div class="stat-label">LOAD</div>
+      <div class="stat-number">${formatNum(emp.load)}</div>
     </div>
     <div class="stat-box">
-      <div class="stat-label">Labour</div>
-      <div class="stat-value">₹${emp.labour.toLocaleString()}</div>
+      <div class="stat-label">LABOUR</div>
+      <div class="stat-number">₹${(emp.labour/1000).toFixed(0)}K</div>
     </div>
     <div class="stat-box">
-      <div class="stat-label">Score</div>
-      <div class="stat-value">${formatNum(emp.score)}</div>
+      <div class="stat-label">SCORE</div>
+      <div class="stat-number">${formatNum(emp.score)}</div>
     </div>
   `;
 
   return `
-    <div class="champion-card rank-${rank}">
-      <div class="champion-avatar-wrap">
-        <div class="champion-avatar-ring">
-          <div class="champion-avatar-inner">
-            <img src="${emp.photo}" alt="${emp.name}" onerror="this.src='${CONFIG.FALLBACK_IMG}'">
-          </div>
+    <div class="champion-box rank-${rank}">
+      <div class="avatar-section">
+        <div class="avatar-ring">
+          <img src="${emp.photo}" alt="${emp.name}" class="avatar-photo" onerror="this.src='${CONFIG.FALLBACK_IMG}'">
         </div>
-        <div class="champion-rank-badge">${rank}</div>
+        <div class="rank-badge">${rank}</div>
       </div>
-      <div class="champion-details">
+      <div class="champion-info">
         <div class="champion-name">${emp.name}</div>
         <div class="champion-stats">${stats}</div>
       </div>
@@ -157,11 +152,9 @@ function startScrolling() {
   
   const container = document.getElementById('tableBodyContainer');
   
-  // Wait a bit to ensure container is properly rendered
   setTimeout(() => {
     const maxScroll = container.scrollHeight - container.clientHeight;
     
-    // If content fits in view, just wait and switch
     if (maxScroll <= 10) {
       state.switchTimer = setTimeout(() => {
         if (!state.userInteracting) {
@@ -171,11 +164,10 @@ function startScrolling() {
       return;
     }
     
-    // Always start from top for new page loads
     let scrollPos = 0;
     container.scrollTop = 0;
     
-    const scrollSpeed = 2.5; // Balanced speed
+    const scrollSpeed = 2.5;
     const pauseAtBottom = 3000;
     state.isScrolling = true;
     
@@ -184,7 +176,6 @@ function startScrolling() {
         return;
       }
       
-      // Recalculate maxScroll in case content changed
       const currentMaxScroll = container.scrollHeight - container.clientHeight;
       
       if (scrollPos >= currentMaxScroll - 10) {
@@ -201,7 +192,7 @@ function startScrolling() {
         container.scrollTop = scrollPos;
       }
     }, 45);
-  }, 100); // Small delay to ensure DOM is ready
+  }, 100);
 }
 
 function renderData(data) {
@@ -220,12 +211,10 @@ function renderData(data) {
   const categoryBadge = document.getElementById('categoryBadge');
   if (category) {
     categoryBadge.textContent = category;
-    categoryBadge.style.display = 'inline-block';
+    categoryBadge.classList.add('visible');
   } else {
-    categoryBadge.style.display = 'none';
+    categoryBadge.classList.remove('visible');
   }
-
-  document.getElementById('championsTitle').innerHTML = isToday ? '⚡ TODAY\'S TOP 3' : '🏆 THIS MONTH TOP 3';
 
   const sorted = [...filteredData].sort((a, b) => b.score - a.score);
   
@@ -238,24 +227,24 @@ function renderData(data) {
     if (isMech) {
       return `
         <tr class="${rankClass}">
-          <td class="rank-col" style="width: 8%; text-align: center;">${i + 1}</td>
-          <td class="photo-col" style="width: 12%; text-align: center;"><img src="${e.photo}" onerror="this.src='${CONFIG.FALLBACK_IMG}'"></td>
-          <td class="name-col" style="width: 50%; text-align: left;">${e.name}</td>
-          <td style="width: 15%; text-align: center;">${formatNum(e.load)}</td>
-          <td class="value-col" style="width: 15%; text-align: center;">₹${e.labour.toLocaleString()}</td>
+          <td class="rank-cell">${i + 1}</td>
+          <td class="photo-cell"><img src="${e.photo}" onerror="this.src='${CONFIG.FALLBACK_IMG}'"></td>
+          <td class="name-cell">${e.name}</td>
+          <td>${formatNum(e.load)}</td>
+          <td class="value-cell">₹${e.labour.toLocaleString()}</td>
         </tr>
       `;
     } else {
       return `
         <tr class="${rankClass}">
-          <td class="rank-col" style="width: 7%; text-align: center;">${i + 1}</td>
-          <td class="photo-col" style="width: 9%; text-align: center;"><img src="${e.photo}" onerror="this.src='${CONFIG.FALLBACK_IMG}'"></td>
-          <td class="name-col" style="width: 23%; text-align: left;">${e.name}</td>
-          <td style="width: 11%; text-align: center;">${formatNum(e.load)}</td>
-          <td class="value-col" style="width: 12%; text-align: center;">₹${e.labour.toLocaleString()}</td>
-          <td class="value-col" style="width: 12%; text-align: center;">₹${e.vas.toLocaleString()}</td>
-          <td class="value-col" style="width: 12%; text-align: center;">₹${e.mga.toLocaleString()}</td>
-          <td class="value-col" style="width: 14%; text-align: center;">${formatNum(e.score)}</td>
+          <td class="rank-cell">${i + 1}</td>
+          <td class="photo-cell"><img src="${e.photo}" onerror="this.src='${CONFIG.FALLBACK_IMG}'"></td>
+          <td class="name-cell">${e.name}</td>
+          <td>${formatNum(e.load)}</td>
+          <td class="value-cell">₹${e.labour.toLocaleString()}</td>
+          <td class="value-cell">₹${e.vas.toLocaleString()}</td>
+          <td class="value-cell">₹${e.mga.toLocaleString()}</td>
+          <td class="value-cell">${formatNum(e.score)}</td>
         </tr>
       `;
     }
@@ -268,19 +257,15 @@ function renderData(data) {
 
   const container = document.getElementById('tableBodyContainer');
   
-  // NEW: Restore saved scroll position if reloading same view, otherwise reset to top
   if (state.savedScrollPosition > 0 && state.isScrolling) {
-    // Reloading while scrolling - restore position
     setTimeout(() => {
       container.scrollTop = state.savedScrollPosition;
       resumeScrollingFromCurrent();
     }, 100);
   } else {
-    // New view switch - start from top
     container.scrollTop = 0;
     state.savedScrollPosition = 0;
     
-    // Clear any existing timers before starting new scroll
     stopScrolling();
     
     setTimeout(() => {
@@ -289,10 +274,10 @@ function renderData(data) {
   }
 }
 
-function showSwitchNotif() {
-  const notif = document.getElementById('switchNotification');
-  notif.classList.add('active');
-  setTimeout(() => notif.classList.remove('active'), 2000);
+function showTransition() {
+  const screen = document.getElementById('transitionScreen');
+  screen.classList.add('active');
+  setTimeout(() => screen.classList.remove('active'), 1000);
 }
 
 async function loadData() {
@@ -300,7 +285,6 @@ async function loadData() {
     const sheet = CONFIG.SHEETS[state.currentIndex];
     const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheet.name)}`;
     
-    // NEW: Save current scroll position before reloading
     const container = document.getElementById('tableBodyContainer');
     if (container && state.isScrolling) {
       state.savedScrollPosition = container.scrollTop;
@@ -325,10 +309,9 @@ function switchView() {
     return;
   }
   
-  showSwitchNotif();
-  stopScrolling(); // Clear all timers
+  showTransition();
+  stopScrolling();
   
-  // NEW: Reset saved scroll position when switching views
   state.savedScrollPosition = 0;
   
   state.currentIndex = (state.currentIndex + 1) % CONFIG.SHEETS.length;
@@ -337,11 +320,11 @@ function switchView() {
   
   setTimeout(() => {
     loadData();
-  }, 600); // Increased delay for cleaner transition
+  }, 500);
 }
 
 function updateActiveButton() {
-  const buttons = document.querySelectorAll('.control-btn');
+  const buttons = document.querySelectorAll('.view-btn');
   buttons.forEach((btn, idx) => {
     if (idx === state.currentIndex) {
       btn.classList.add('active');
@@ -355,12 +338,15 @@ function manualSwitch(index) {
   state.userInteracting = true;
   stopScrolling();
   
-  // NEW: Reset saved scroll position on manual switch
   state.savedScrollPosition = 0;
   
   state.currentIndex = index;
   updateActiveButton();
-  loadData();
+  showTransition();
+  
+  setTimeout(() => {
+    loadData();
+  }, 500);
   
   setTimeout(() => {
     state.userInteracting = false;
@@ -401,7 +387,6 @@ container.addEventListener('wheel', (e) => {
   clearTimeout(state.wheelTimeout);
   state.wheelTimeout = setTimeout(() => {
     state.userInteracting = false;
-    // Resume scrolling from current position
     resumeScrollingFromCurrent();
   }, 3000);
 });
@@ -410,13 +395,11 @@ container.addEventListener('scroll', () => {
   if (!state.isScrolling && !state.userInteracting) {
     clearTimeout(state.manualScrollTimeout);
     state.manualScrollTimeout = setTimeout(() => {
-      // Resume scrolling from current position
       resumeScrollingFromCurrent();
     }, 2000);
   }
 });
 
-// New function to resume scrolling from current position
 function resumeScrollingFromCurrent() {
   stopScrolling();
   
@@ -432,7 +415,6 @@ function resumeScrollingFromCurrent() {
     return;
   }
   
-  // Start from CURRENT scroll position (not reset to 0)
   let scrollPos = container.scrollTop;
   const scrollSpeed = 2.5;
   const pauseAtBottom = 3000;
@@ -461,8 +443,7 @@ function resumeScrollingFromCurrent() {
   }, 45);
 }
 
-// Manual control buttons
-document.querySelectorAll('.control-btn').forEach(btn => {
+document.querySelectorAll('.view-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const index = parseInt(btn.getAttribute('data-index'));
     manualSwitch(index);
