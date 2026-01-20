@@ -3,93 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Performance Excellence Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+  <title> Performance Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="animated-bg"></div>
+  <div class="page-bg"></div>
 
-  <div class="switch-notification" id="switchNotification">
-    🔄 SWITCHING VIEW
+  <div class="transition-screen" id="transitionScreen">
+    <div class="transition-inner">
+      <div class="loader"></div>
+      <div class="transition-msg">Updating Dashboard</div>
+    </div>
   </div>
 
-  <div class="dashboard-wrapper">
-    <div class="top-bar">
-      <div class="logo-area">
-        <div class="logo-box">
-          <div class="logo-box-inner">
-            <img src="https://i.postimg.cc/mZFhnQ4H/a3898668-6ff6-40af-b0cc-7991ebfe37b2.jpg" alt="Company Logo" id="mainLogo">
-          </div>
+  <div class="main-container">
+    <!-- Header -->
+    <header class="top-header">
+      <div class="header-left-section">
+        <div class="logo-wrapper">
+          <img src="https://i.postimg.cc/mZFhnQ4H/a3898668-6ff6-40af-b0cc-7991ebfe37b2.jpg" alt="Logo" class="company-logo">
         </div>
-        <div class="title-area">
-          <h1>Performance Leaderboard</h1>
-          <div class="mode-indicator" id="modeIndicator">LOADING...</div>
-          <span class="category-badge" id="categoryBadge" style="display:none;">ALL</span>
+        <div class="header-info">
+          <h1 class="main-heading">EXECUTIVE PERFORMANCE DASHBOARD</h1>
+          <div class="sub-heading" id="modeIndicator">LOADING DASHBOARD</div>
+          <span class="category-pill" id="categoryBadge"></span>
         </div>
       </div>
-      <div class="update-info">
-        <div class="label">Last Updated</div>
-        <div class="time" id="lastUpdate">--:--</div>
+      <div class="header-right-section">
+        <div class="update-box">
+          <div class="update-label">LAST UPDATED</div>
+          <div class="update-time" id="lastUpdate">--:--</div>
+        </div>
       </div>
-    </div>
+    </header>
 
-    <div class="content-grid">
-      <div class="leaderboard-panel">
-        <div class="table-header">
-          <table>
+    <!-- Main Content Area -->
+    <div class="content-wrapper">
+      <!-- Table Section -->
+      <section class="table-section">
+        <div class="table-container">
+          <table class="main-table">
             <thead id="tableHead">
               <tr>
-                <th style="width: 7%; text-align: center;">RANK</th>
-                <th style="width: 9%; text-align: center;">PHOTO</th>
-                <th style="width: 23%; text-align: left; padding-left: 24px;">NAME</th>
-                <th style="width: 11%; text-align: center;">LOAD</th>
-                <th style="width: 12%; text-align: center;">LABOUR ₹</th>
-                <th style="width: 12%; text-align: center;">VAS ₹</th>
-                <th style="width: 12%; text-align: center;">MGA ₹</th>
-                <th style="width: 14%; text-align: center;">SCORE</th>
+                <th class="col-rank">RANK</th>
+                <th class="col-photo">PHOTO</th>
+                <th class="col-name">NAME</th>
+                <th class="col-data">LOAD</th>
+                <th class="col-data">LABOUR ₹</th>
+                <th class="col-data">VAS ₹</th>
+                <th class="col-data">MGA ₹</th>
+                <th class="col-score">SCORE</th>
               </tr>
             </thead>
           </table>
+          
+          <div class="table-scroll-area" id="tableBodyContainer">
+            <table class="main-table">
+              <tbody id="dataRows"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="table-body" id="tableBodyContainer">
-          <table>
-            <tbody id="dataRows"></tbody>
-          </table>
-        </div>
-      </div>
+      </section>
 
-      <div class="champions-panel">
-        <div class="manual-controls">
-          <button class="control-btn" data-index="0">
-            <span class="btn-icon">📊</span>
-            <span class="btn-text">SA Today</span>
+      <!-- Right Sidebar -->
+      <aside class="right-panel">
+        <!-- View Controls -->
+        <div class="controls-section">
+          <button class="view-btn" data-index="0">
+            <span class="btn-emoji">📊</span>
+            <span class="btn-label">SA MONTH</span>
           </button>
-          <button class="control-btn" data-index="1">
-            <span class="btn-icon">📊</span>
-            <span class="btn-text">BSA Today</span>
+          <button class="view-btn" data-index="1">
+            <span class="btn-emoji">📊</span>
+            <span class="btn-label">BSA MONTH</span>
           </button>
-          <button class="control-btn" data-index="2">
-            <span class="btn-icon">📈</span>
-            <span class="btn-text">SA Month</span>
-          </button>
-          <button class="control-btn" data-index="3">
-            <span class="btn-icon">📈</span>
-            <span class="btn-text">BSA Month</span>
-          </button>
-          <button class="control-btn" data-index="4">
-            <span class="btn-icon">🔧</span>
-            <span class="btn-text">Tech Today</span>
-          </button>
-          <button class="control-btn" data-index="5">
-            <span class="btn-icon">🔧</span>
-            <span class="btn-text">Tech Month</span>
+          <button class="view-btn" data-index="2">
+            <span class="btn-emoji">🔧</span>
+            <span class="btn-label">TECH MONTH</span>
           </button>
         </div>
-        
-        <div class="champions-title" id="championsTitle">🏆 TOP 3 PERFORMERS</div>
-        <div class="champions-list" id="championsList"></div>
-      </div>
+
+        <!-- Top 3 Section -->
+        <div class="top3-section">
+          <h2 class="top3-heading">
+            <span class="trophy-icon">🏆</span>
+            THIS MONTH TOP 3
+          </h2>
+          <div class="top3-list" id="championsList"></div>
+        </div>
+      </aside>
     </div>
   </div>
 
